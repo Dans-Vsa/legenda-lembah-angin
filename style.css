@@ -1,0 +1,136 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+body {
+  display: flex; align-items: center; justify-content: center;
+  font-family: "Segoe UI", Tahoma, Verdana, sans-serif; color: #fff;
+  user-select: none; -webkit-user-select: none;
+}
+#game { flex: none; position: relative; width: 960px; height: 540px; overflow: hidden; background: #000; transform-origin: center center; }
+#cv { position: absolute; left: 0; top: 0; image-rendering: pixelated; }
+#ui { position: absolute; inset: 0; }
+#fade { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; z-index: 50; }
+#mute { position: absolute; right: 6px; top: 2px; z-index: 60; font-size: 15px; opacity: .55; cursor: pointer; padding: 2px 6px; text-shadow: 1px 1px 0 #000; }
+#mute.off { text-decoration: line-through; opacity: .35; }
+
+/* ---------- Jendela gaya RPG klasik ---------- */
+.win {
+  position: absolute; padding: 8px 12px; font-size: 16px; line-height: 1.35;
+  background: linear-gradient(180deg, #3a50b8 0%, #1f2b78 55%, #121a4c 100%);
+  border: 2px solid #e6eaff; border-radius: 6px;
+  box-shadow: 0 0 0 2px #0b0f2e, inset 0 0 0 1px rgba(0,0,0,.35), 0 6px 14px rgba(0,0,0,.55);
+  text-shadow: 1px 1px 0 #000, 2px 2px 0 rgba(0,0,0,.35);
+}
+.hidden { display: none !important; }
+.overlay { position: absolute; inset: 0; background: rgba(0,0,10,.35); }
+small { font-size: 12px; }
+
+.list { position: relative; overflow-y: auto; max-height: 100%; scrollbar-width: thin; scrollbar-color: #8890c8 transparent; }
+.menu-item {
+  position: relative; padding: 2px 6px 2px 24px; cursor: pointer; display: flex;
+  justify-content: space-between; align-items: center; gap: 14px; white-space: nowrap; border-radius: 3px;
+}
+.menu-item .l { flex: 1; }
+.menu-item.focus { background: rgba(255,255,255,.09); }
+.menu-item.focus::before {
+  content: ""; position: absolute; left: 4px; top: 50%; margin-top: -7px; width: 0; height: 0;
+  border-top: 7px solid transparent; border-bottom: 7px solid transparent; border-left: 12px solid #fff;
+  filter: drop-shadow(1px 1px 0 #000); animation: nudge .45s ease-in-out infinite alternate;
+}
+@keyframes nudge { from { transform: translateX(-2px); } to { transform: translateX(2px); } }
+.menu-item.disabled { color: #7d84b8; }
+.menu-item .r { color: #ffe9a0; }
+.menu-item.disabled .r { color: #8a8a6a; }
+.list.grid2 { display: grid; grid-template-columns: 1fr 1fr; column-gap: 8px; align-content: start; }
+
+.bar { height: 6px; background: #0a0d26; border: 1px solid #9aa2d8; border-radius: 2px; overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; }
+.bar.hp > i { background: linear-gradient(#9ff59f, #33ad33); }
+.bar.mp > i { background: linear-gradient(#a6dcff, #2f84d8); }
+.bar.xp > i { background: linear-gradient(#ffe38f, #d39318); }
+.bar.atb > i { background: linear-gradient(#fff2a8, #e0a820); }
+.bar.atb.ready > i { background: linear-gradient(#ffffff, #8fe0ff); }
+.bar.burst > i { background: linear-gradient(#ffb6d6, #df2f78); }
+.bar.burst.full > i { animation: glow .35s infinite alternate; }
+@keyframes glow { from { filter: brightness(1); } to { filter: brightness(1.9); } }
+
+/* ---------- Dialog ---------- */
+.dialog { left: 40px; top: 388px; width: 880px; height: 140px; font-size: 18px; cursor: pointer; padding: 18px 20px; z-index: 20; }
+.dname {
+  position: absolute; top: -15px; left: 16px; padding: 1px 12px; font-size: 15px; font-weight: bold;
+  background: linear-gradient(#5068d0, #26348a); border: 2px solid #e6eaff; border-radius: 5px; color: #ffe98a;
+}
+.dtext { white-space: pre-wrap; }
+.dmore { position: absolute; right: 16px; bottom: 6px; font-size: 13px; animation: blink .5s infinite alternate; }
+@keyframes blink { from { opacity: .2; } to { opacity: 1; } }
+.choice { z-index: 21; }
+.toast { left: 50%; transform: translateX(-50%); top: 14px; z-index: 30; transition: opacity .4s; white-space: nowrap; }
+.banner {
+  left: 50%; top: 22px; transform: translateX(-50%); padding: 8px 34px; font-size: 20px; font-weight: bold;
+  letter-spacing: 2px; z-index: 25; transition: opacity .8s; white-space: nowrap; color: #fff3c4;
+}
+
+/* ---------- Battle ---------- */
+.bhelp { text-align: center; font-size: 17px; z-index: 5; }
+.bhelp.enemy { color: #ffb0b0; }
+.benemy .ename { padding: 2px 4px; white-space: nowrap; }
+.bparty { padding: 6px 12px; }
+.prow-h, .prow { display: grid; grid-template-columns: 78px 120px 44px 1fr; align-items: center; column-gap: 10px; }
+.prow-h { font-size: 12px; color: #aeb6ea; text-shadow: none; padding-bottom: 2px; }
+.prow { height: 42px; }
+.prow .pn { font-weight: bold; }
+.prow .pn.act { color: #ffef7a; }
+.prow.ko .pn { color: #ff7a7a; }
+.prow .pst { color: #e0a0ff; font-size: 12px; margin-left: 4px; }
+.php { font-size: 17px; }
+.php small { color: #c8cdf0; font-size: 13px; }
+.php.low { color: #ffe060; }
+.php.ko { color: #ff6060; }
+.php .bar { margin-top: 2px; height: 4px; }
+.gauges .bar { margin: 3px 0; height: 7px; }
+.bsub { z-index: 6; }
+.bsub .list { max-height: 140px; }
+.burst-txt { color: #ff9ccc; font-weight: bold; animation: glow .35s infinite alternate; }
+.victory { z-index: 10; }
+.vtitle { font-size: 26px; font-weight: bold; text-align: center; color: #ffe98a; letter-spacing: 3px; margin-bottom: 6px; }
+.vrow { display: flex; justify-content: space-between; padding: 2px 6px; }
+.vrow b { color: #ffe9a0; }
+.vlvl { color: #9ff59f; padding: 2px 6px; }
+.vhint { text-align: right; font-size: 12px; color: #aeb6ea; margin-top: 6px; animation: blink .5s infinite alternate; }
+
+/* ---------- Menu lapangan ---------- */
+.fm-cards .menu-item { padding-top: 8px; padding-bottom: 8px; }
+.card { display: flex; gap: 12px; align-items: center; }
+.card.ko { opacity: .6; }
+.por { width: 48px; height: 54px; image-rendering: pixelated; flex: none; }
+.ci { flex: 1; min-width: 0; }
+.cn { font-weight: bold; font-size: 17px; }
+.cn .lv { color: #ffe98a; font-size: 14px; margin-left: 6px; }
+.ct { font-size: 12px; color: #c0c6f0; margin-bottom: 2px; }
+.st { display: flex; justify-content: space-between; font-size: 13px; margin-top: 2px; }
+.kv { display: flex; justify-content: space-between; }
+.kv b { color: #ffe9a0; }
+.loc { margin-top: 6px; font-size: 13px; color: #c0c6f0; }
+.sh { font-weight: bold; color: #ffe98a; border-bottom: 1px solid rgba(255,255,255,.25); margin-bottom: 6px; padding-bottom: 2px; }
+.side-list { max-height: 330px; }
+.side-help { margin-top: 10px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.2); font-size: 14px; color: #dfe3ff; min-height: 40px; }
+.muted { color: #aeb6ea; font-size: 14px; }
+.stat-grid { display: grid; grid-template-columns: 1fr auto; row-gap: 2px; column-gap: 12px; font-size: 15px; }
+.stat-grid b { color: #ffe9a0; text-align: right; }
+.skill-line { font-size: 14px; }
+.skill-line.locked { color: #8a90c0; }
+.help-list { font-size: 14px; line-height: 1.6; }
+.help-list b { color: #ffe9a0; }
+
+/* ---------- Toko ---------- */
+.shop-head { display: flex; justify-content: space-between; align-items: center; font-size: 18px; }
+.shop-head b { color: #ffe9a0; }
+.cmp-up { color: #9ff59f; } .cmp-down { color: #ff9090; }
+
+/* ---------- Judul & cerita ---------- */
+.title-help { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font-size: 13px; color: #e8e0ff; text-shadow: 1px 1px 0 #000; }
+.story { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 110px; text-align: center; background: radial-gradient(ellipse at center, rgba(0,0,0,.55), rgba(0,0,0,.2)); }
+.story p { font-size: 20px; line-height: 1.6; margin: 8px 0; opacity: 0; animation: fadeIn 1.2s forwards; text-shadow: 1px 1px 0 #000; }
+.story .story-hint { margin-top: 26px; font-size: 13px; color: #aeb6ea; opacity: 0; animation: fadeIn 1s forwards, blink .6s 1s infinite alternate; }
+.story h1 { font-family: Georgia, serif; font-size: 54px; color: #ffe9a0; margin: 0 0 10px; opacity: 0; animation: fadeIn 2s forwards; letter-spacing: 4px; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.gameover-title { position: absolute; left: 0; right: 0; top: 150px; text-align: center; font-family: Georgia, serif; font-size: 60px; color: #d84040; letter-spacing: 8px; text-shadow: 3px 3px 0 #000; animation: fadeIn 2s forwards; }
