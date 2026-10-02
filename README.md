@@ -35,3 +35,13 @@ Buka `index.html` di browser, atau jalankan server statis di folder ini, misalny
 ```bash
 python -m http.server 8000
 ```
+
+## Versi Godot (opsional)
+
+Folder [`godot/`](godot/) berisi versi Godot 4 dari game yang sama, dengan isi dan keseimbangan yang sama dengan versi web. Versi web di atas tidak bergantung pada folder ini.
+
+1. Pasang [Godot 4.7](https://godotengine.org/download).
+2. Di Godot, klik **Import** lalu pilih `godot/project.godot`.
+3. Tekan **F5** untuk bermain.
+
+Penjelasan struktur kode dan cara menjalankan uji otomatis ada di [godot/README.md](godot/README.md).
