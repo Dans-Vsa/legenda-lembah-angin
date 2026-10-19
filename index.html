@@ -2,18 +2,62 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#7a8aba">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Legenda Lembah Angin</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="mobile.css">
 </head>
 <body>
-<div id="game">
-  <canvas id="cv" width="960" height="540"></canvas>
-  <div id="ui"></div>
-  <div id="fade"></div>
-  <div id="mute" title="Suara on/off (M)">♪</div>
+<!-- Di desktop hanya #game yang terlihat. Di HP, #shell menjadi bodi konsol:
+     vertikal = gaya GameBoy/NES, horizontal = gaya PSP. -->
+<div id="shell">
+  <div id="bezel">
+    <div class="bezel-top" aria-hidden="true"><span class="led"></span><span class="bezel-label">Power</span></div>
+    <div id="screen">
+      <div id="game">
+        <canvas id="cv" width="960" height="540"></canvas>
+        <div id="ui"></div>
+        <div id="fade"></div>
+        <div id="mute" title="Suara on/off (M)">♪</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="brand" aria-hidden="true"><span class="brand-name">Lembah Angin</span><span class="brand-model">Pocket</span></div>
+
+  <div id="ctl-left">
+    <div id="dpad" role="group" aria-label="Arah">
+      <span class="arm up" aria-hidden="true"></span>
+      <span class="arm down" aria-hidden="true"></span>
+      <span class="arm left" aria-hidden="true"></span>
+      <span class="arm right" aria-hidden="true"></span>
+      <span class="hub" aria-hidden="true"></span>
+    </div>
+  </div>
+
+  <div id="ctl-right">
+    <div id="face">
+      <button class="fb fb-menu" data-act="menu" aria-label="Menu"><span class="ps">△</span></button>
+      <button class="fb fb-b" data-act="cancel" aria-label="B, batal"><span class="gb">B</span><span class="ps">○</span></button>
+      <button class="fb fb-a" data-act="ok" aria-label="A, pilih"><span class="gb">A</span><span class="ps">✕</span></button>
+      <button class="fb fb-sound" data-act="mute" aria-label="Suara"><span class="ps">□</span></button>
+    </div>
+  </div>
+
+  <div id="sys">
+    <div class="sys-btn"><button class="pill" data-act="mute" aria-label="Select, suara on/off"></button><span>Select</span></div>
+    <div class="sys-btn"><button class="pill" data-act="menu" aria-label="Start, buka menu"></button><span>Start</span></div>
+    <div class="sys-btn sys-fs"><button class="pill" data-act="fullscreen" aria-label="Layar penuh"></button><span>Layar</span></div>
+  </div>
+
+  <div id="grille" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
 </div>
 <script src="js/engine.js"></script>
+<script src="js/touch.js"></script>
 <script src="js/art.js"></script>
 <script src="js/data.js"></script>
 <script src="js/ui.js"></script>

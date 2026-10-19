@@ -1,0 +1,159 @@
+/* ==========================================================
+   Bodi konsol untuk HP (lihat DESIGN.md)
+   Desktop : hanya #game yang tampil.
+   Vertikal: gaya GameBoy/NES  (Nintendo 2001 DESIGN.md)
+   Horizontal: gaya PSP         (PlayStation DESIGN.md)
+   ========================================================== */
+#shell, #bezel, #screen { display: contents; }
+#brand, #ctl-left, #ctl-right, #sys, #grille, .bezel-top { display: none; }
+
+body.pad {
+  display: block; height: 100dvh; touch-action: none;
+  -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+  --canvas: #7a8aba; --periwinkle: #8ba1d4; --chrome: #3d4f97; --muted: #60619c;
+  --carbon: #21242e; --signal: #f68d1f; --amber: #ecab37; --gold: #e48600; --red: #e60012;
+  background: var(--canvas);
+}
+body.pad #shell {
+  display: grid; height: 100dvh; width: 100vw;
+  padding: max(10px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+  font-family: Arial, Helvetica, sans-serif; color: var(--carbon); touch-action: none;
+}
+body.pad #bezel { display: flex; flex-direction: column; min-height: 0; }
+body.pad #screen { display: block; position: relative; overflow: hidden; background: #000; }
+body.pad #game { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+body.pad button { font: inherit; border: 0; padding: 0; cursor: pointer; touch-action: none; }
+body.pad #ctl-left, body.pad #ctl-right { display: flex; align-items: center; justify-content: center; min-width: 0; }
+body.pad #sys { display: flex; justify-content: center; align-items: flex-start; gap: 22px; }
+body.pad.no-fs .sys-fs { display: none; }
+.sys-btn { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.sys-btn span { font-size: 11px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+.fb .gb, .fb .ps { pointer-events: none; }
+
+/* D-pad: satu area sentuh dengan empat lengan */
+#dpad { position: relative; width: var(--dpad, 150px); height: var(--dpad, 150px); touch-action: none; }
+#dpad .arm, #dpad .hub { position: absolute; pointer-events: none; }
+#dpad .up, #dpad .down { left: 33.3%; width: 33.4%; height: 36%; }
+#dpad .left, #dpad .right { top: 33.3%; height: 33.4%; width: 36%; }
+#dpad .up { top: 0; }
+#dpad .down { bottom: 0; }
+#dpad .left { left: 0; }
+#dpad .right { right: 0; }
+#dpad .hub { left: 33.3%; top: 33.3%; width: 33.4%; height: 33.4%; }
+#dpad .arm::after { content: ""; position: absolute; left: 50%; top: 50%; border: 7px solid transparent; transform: translate(-50%, -50%); }
+#dpad .up::after { border-bottom: 10px solid currentColor; border-top: 0; }
+#dpad .down::after { border-top: 10px solid currentColor; border-bottom: 0; }
+#dpad .left::after { border-right: 10px solid currentColor; border-left: 0; }
+#dpad .right::after { border-left: 10px solid currentColor; border-right: 0; }
+
+/* ---------- Vertikal: GameBoy / NES (Nintendo 2001) ---------- */
+@media (orientation: portrait) {
+  body.pad {
+    background:
+      repeating-linear-gradient(180deg, rgba(255,255,255,.035) 0 1px, transparent 1px 3px),
+      linear-gradient(180deg, var(--periwinkle), var(--canvas) 55%);
+  }
+  body.pad #shell {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr) auto;
+    grid-template-areas: "bezel bezel" "brand brand" "left right" "sys sys";
+    row-gap: 6px;
+  }
+  body.pad #bezel {
+    grid-area: bezel; background-color: var(--carbon);
+    background-image: radial-gradient(rgba(255,255,255,.07) 1px, transparent 1.4px); background-size: 6px 6px;
+    padding: 8px 10px 14px;
+    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 34px), calc(100% - 34px) 100%, 0 100%, 0 10px);
+    border-bottom: 3px solid var(--chrome);
+  }
+  body.pad .bezel-top { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; color: #9fbee7; font-size: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+  .led { width: 8px; height: 8px; border-radius: 50%; background: var(--red); box-shadow: inset 0 -1px 0 rgba(0,0,0,.35); }
+  body.pad #screen { width: 100%; aspect-ratio: 16 / 9; border-top: 2px solid #11131a; border-bottom: 2px solid #3a3f52; }
+  body.pad #brand { grid-area: brand; display: flex; align-items: baseline; gap: 8px; padding-left: 4px; }
+  .brand-name { font-family: "Arial Black", Arial, sans-serif; font-weight: 900; font-style: italic; font-size: 19px; color: var(--chrome); text-transform: uppercase; letter-spacing: .5px; }
+  .brand-model { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--carbon); text-transform: uppercase; }
+
+  body.pad #ctl-left { grid-area: left; justify-content: flex-start; --dpad: min(40vw, 30vh, 170px); }
+  body.pad #ctl-right { grid-area: right; justify-content: flex-end; }
+  #dpad { color: #5a5f8c; }
+  #dpad .arm, #dpad .hub { background: var(--carbon); }
+  #dpad .up { border-radius: 4px 4px 0 0; box-shadow: inset 0 2px 0 #3a3f52; }
+  #dpad .left { border-radius: 4px 0 0 4px; box-shadow: inset 2px 0 0 #3a3f52; }
+  #dpad .right { border-radius: 0 4px 4px 0; }
+  #dpad .down { border-radius: 0 0 4px 4px; box-shadow: 0 4px 0 var(--chrome); }
+  #dpad .hub { background: radial-gradient(circle, #2c303d 30%, var(--carbon) 32%); }
+  #dpad.d-up .up, #dpad.d-down .down, #dpad.d-left .left, #dpad.d-right .right { background: #11131a; color: var(--amber); }
+
+  body.pad #face { position: relative; width: min(44vw, 190px); height: min(30vw, 130px); transform: rotate(-22deg); }
+  body.pad .fb-menu, body.pad .fb-sound, body.pad .fb .ps { display: none; }
+  body.pad .fb {
+    position: absolute; width: min(17vw, 70px); height: min(17vw, 70px); border-radius: 50%;
+    font-family: "Arial Black", Arial, sans-serif; font-size: 22px; font-weight: 900;
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.35), 0 4px 0 var(--chrome);
+  }
+  body.pad .fb .gb { display: inline; }
+  body.pad .fb-a { right: 0; top: 0; background: var(--signal); color: #fff; }
+  body.pad .fb-b { left: 0; bottom: 0; background: var(--amber); color: var(--carbon); }
+  body.pad .fb.pressed { transform: translateY(3px); box-shadow: inset 0 3px 0 rgba(0,0,0,.2), 0 1px 0 var(--chrome); }
+  body.pad .fb-a.pressed { background: #d97410; }
+  body.pad .fb-b.pressed { background: var(--gold); }
+
+  body.pad #sys { grid-area: sys; padding: 2px 0 6px; justify-content: flex-start; gap: 14px; padding-left: 4%; }
+  body.pad .sys-btn { transform: rotate(-22deg); }
+  body.pad .sys-btn span { color: var(--chrome); }
+  body.pad .pill { width: 58px; height: 18px; border-radius: 9px; background: var(--muted); box-shadow: inset 0 2px 0 rgba(255,255,255,.25), 0 3px 0 var(--chrome); }
+  body.pad .pill.pressed { transform: translateY(2px); box-shadow: 0 1px 0 var(--chrome); background: var(--carbon); }
+
+  body.pad #grille { display: flex; gap: 6px; position: fixed; right: 16px; bottom: max(18px, env(safe-area-inset-bottom)); transform: rotate(-30deg); pointer-events: none; }
+  #grille i { display: block; width: 5px; height: 34px; border-radius: 3px; background: rgba(33,36,46,.55); box-shadow: inset 0 2px 0 rgba(0,0,0,.35); }
+}
+
+/* ---------- Horizontal: PSP (PlayStation) ---------- */
+@media (orientation: landscape) {
+  body.pad { background: #000; --ps-blue: #0070d1; --ps-blue-pressed: #0064b7; --card: #181818; --elev: #121314; --hair: rgba(229,229,229,.2); }
+  body.pad #shell {
+    grid-template-columns: minmax(112px, 1fr) auto minmax(112px, 1fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand bezel ." "left bezel right" ". bezel sys";
+    column-gap: 14px; color: #fff;
+    background: linear-gradient(180deg, var(--elev), #000);
+    font-family: Roboto, "Segoe UI", Inter, Arial, sans-serif;
+  }
+  body.pad #bezel { grid-area: bezel; justify-content: center; }
+  body.pad #screen {
+    height: 100%; max-height: 100%; aspect-ratio: 16 / 9;
+    max-width: calc(100vw - 2 * 112px - 2 * 14px - env(safe-area-inset-left) - env(safe-area-inset-right) - 28px);
+    background: transparent;
+  }
+  /* Bingkai mengikuti gambar game, bukan kotak layar (yang bisa lebih lebar). */
+  body.pad #game { box-shadow: 0 0 0 1px var(--hair), 0 0 0 6px #050505; border-radius: 2px; }
+  body.pad #brand { grid-area: brand; display: block; align-self: start; padding-top: 4px; }
+  .brand-name { font-weight: 300; font-size: 14px; letter-spacing: 2px; line-height: 1.4; text-transform: uppercase; color: rgba(255,255,255,.7); }
+  .brand-model { display: none; }
+
+  body.pad #ctl-left { grid-area: left; --dpad: min(34vh, 17vw, 150px); }
+  body.pad #ctl-right { grid-area: right; }
+  #dpad { color: #fff; }
+  #dpad .arm { background: var(--card); box-shadow: inset 0 0 0 1px var(--hair); border-radius: 8px; margin: 3px; }
+  #dpad .hub { display: none; }
+  #dpad.d-up .up, #dpad.d-down .down, #dpad.d-left .left, #dpad.d-right .right { background: var(--ps-blue-pressed); box-shadow: 0 4px 12px rgba(0,0,0,.16); }
+
+  body.pad #face { position: relative; width: min(38vh, 18vw, 170px); height: min(38vh, 18vw, 170px); }
+  body.pad .fb .gb { display: none; }
+  body.pad .fb {
+    position: absolute; width: 36%; height: 36%; border-radius: 9999px;
+    background: var(--card); color: #fff; box-shadow: inset 0 0 0 1px var(--hair);
+    font-size: 20px; font-weight: 300; display: flex; align-items: center; justify-content: center;
+  }
+  body.pad .fb-menu { left: 32%; top: 0; }
+  body.pad .fb-b { right: 0; top: 32%; }
+  body.pad .fb-a { left: 32%; bottom: 0; background: var(--ps-blue); box-shadow: none; }
+  body.pad .fb-sound { left: 0; top: 32%; }
+  body.pad .fb.pressed { background: var(--ps-blue-pressed); box-shadow: 0 4px 12px rgba(0,0,0,.16); }
+
+  body.pad #sys { grid-area: sys; gap: 10px; flex-wrap: wrap; }
+  body.pad .sys-btn { flex-direction: row-reverse; gap: 6px; }
+  body.pad .sys-btn span { font-size: 12px; font-weight: 500; letter-spacing: 0; text-transform: none; color: rgba(229,229,229,.55); }
+  body.pad .pill { width: 34px; height: 14px; border-radius: 9999px; background: transparent; box-shadow: inset 0 0 0 1px var(--hair); }
+  body.pad .pill.pressed { background: var(--ps-blue-pressed); }
+}

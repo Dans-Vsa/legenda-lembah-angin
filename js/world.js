@@ -289,7 +289,7 @@ const World = {
       ctx.fillStyle = g; ctx.fillRect(0, 0, VIEW_W, VIEW_H);
     }
     ctx.font = '12px "Segoe UI", sans-serif'; ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.fillText('Esc: Menu   •   Enter: Bicara/Periksa', VIEW_W - 10, VIEW_H - 10);
+    ctx.fillText(Touch.active ? 'START: Menu   •   A: Bicara/Periksa' : 'Esc: Menu   •   Enter: Bicara/Periksa', VIEW_W - 10, VIEW_H - 10);
   },
 
   shadow(ctx, x, y, w = 22) {

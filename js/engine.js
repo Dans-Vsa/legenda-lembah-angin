@@ -72,19 +72,24 @@ const Input = {
   pop(h) { const i = this.stack.lastIndexOf(h); if (i >= 0) this.stack.splice(i, 1); },
   top() { return this.stack[this.stack.length - 1]; },
   isHeld(a) { return this.held.has(a); },
+  // Dipakai keyboard dan tombol layar sentuh (js/touch.js).
+  press(a, repeat = false) {
+    Snd.unlock();
+    if (a === 'mute') { if (!repeat) Snd.toggleMute(); return; }
+    this.held.add(a);
+    if (repeat && (a === 'ok' || a === 'cancel' || a === 'menu')) return;
+    const t = this.top();
+    if (t && t.onKey) t.onKey(a);
+  },
+  release(a) { this.held.delete(a); },
 };
 addEventListener('keydown', e => {
   const a = KEYMAP[e.code];
   if (!a) return;
   e.preventDefault();
-  Snd.unlock();
-  if (a === 'mute') { if (!e.repeat) Snd.toggleMute(); return; }
-  Input.held.add(a);
-  if (e.repeat && (a === 'ok' || a === 'cancel' || a === 'menu')) return;
-  const t = Input.top();
-  if (t && t.onKey) t.onKey(a);
+  Input.press(a, e.repeat);
 });
-addEventListener('keyup', e => { const a = KEYMAP[e.code]; if (a) Input.held.delete(a); });
+addEventListener('keyup', e => { const a = KEYMAP[e.code]; if (a) Input.release(a); });
 addEventListener('blur', () => Input.held.clear());
 addEventListener('pointerdown', () => Snd.unlock());
 

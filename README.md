@@ -28,6 +28,15 @@ Kabut ungu merayap keluar dari Gua Kabut dan mengancam Desa Lembah Angin. Tiga p
 | Esc / X | Batal, buka menu |
 | M | Suara on/off |
 
+### Main di HP
+
+Buka link di atas di browser HP. Tombol konsol muncul otomatis di layar sentuh:
+
+- **Vertikal:** bodi bergaya GameBoy dengan D-pad, tombol **A** (pilih) dan **B** (batal), serta **START** (menu) dan **SELECT** (suara).
+- **Horizontal:** bodi bergaya PSP dengan **✕** (pilih), **○** (batal), **△** (menu), dan **□** (suara).
+
+D-pad bisa digeser tanpa mengangkat jari, dan menahan arah akan menggulir menu. Tombol **Layar** membuka mode layar penuh (di browser yang mendukung). Mode horizontal menampilkan game lebih besar. Tambahkan `?pad=1` di akhir link untuk mencoba tombol ini di komputer.
+
 ## Menjalankan secara lokal
 
 Buka `index.html` di browser, atau jalankan server statis di folder ini, misalnya:

@@ -139,7 +139,9 @@ const Title = {
       start: can ? 1 : 0,
       onSelect: async it => { m.deactivate(); if (it.value === 'new') await Intro.play(); else await continueGame(); },
     });
-    el('div', 'title-help', 'Panah / WASD: gerak &nbsp;•&nbsp; Enter / Z: pilih &nbsp;•&nbsp; Esc / X: batal & menu &nbsp;•&nbsp; M: suara', UI.root);
+    el('div', 'title-help', Touch.active
+      ? 'D-pad: gerak &nbsp;•&nbsp; A: pilih &nbsp;•&nbsp; B: batal &nbsp;•&nbsp; START: menu &nbsp;•&nbsp; SELECT: suara'
+      : 'Panah / WASD: gerak &nbsp;•&nbsp; Enter / Z: pilih &nbsp;•&nbsp; Esc / X: batal & menu &nbsp;•&nbsp; M: suara', UI.root);
   },
   drawBg(ctx, dt) {
     this.t += dt;
@@ -279,8 +281,19 @@ const GameOver = {
 };
 
 // ---------- Skala layar & loop utama ----------
-function fit() { const s = Math.min(innerWidth / VIEW_W, innerHeight / VIEW_H); $('game').style.transform = `scale(${s})`; }
+// Desktop: game memenuhi jendela. HP: game mengisi layar di dalam bodi konsol.
+function fit() {
+  const g = $('game');
+  if (!Touch.active) { g.style.transform = `scale(${Math.min(innerWidth / VIEW_W, innerHeight / VIEW_H)})`; return; }
+  const r = $('screen').getBoundingClientRect();
+  const s = Math.min(r.width / VIEW_W, r.height / VIEW_H);
+  g.style.transform = `scale(${s})`;
+  g.style.left = Math.round((r.width - VIEW_W * s) / 2) + 'px';
+  g.style.top = Math.round((r.height - VIEW_H * s) / 2) + 'px';
+}
 addEventListener('resize', fit);
+addEventListener('orientationchange', () => setTimeout(fit, 120));
+if (window.ResizeObserver) new ResizeObserver(fit).observe($('screen'));
 fit();
 
 cv.addEventListener('click', e => {

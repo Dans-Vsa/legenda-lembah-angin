@@ -56,7 +56,9 @@ const FieldMenu = {
     const refreshCards = filter => cards.setItems(G.party.map(m => ({ label: cardHtml(m), value: m, disabled: filter ? !filter(m) : false })));
     const side = html => { sideW.innerHTML = html; };
     const sideDefault = () => side(`<div class="sh">Kontrol</div><div class="help-list">
-      <b>Panah / WASD</b> — bergerak<br><b>Enter / Z / Spasi</b> — pilih, bicara, periksa<br><b>Esc / X</b> — batal, buka menu<br><b>M</b> — suara on/off</div>
+      ${Touch.active
+        ? '<b>D-pad</b> — bergerak<br><b>A</b> — pilih, bicara, periksa<br><b>B</b> — batal<br><b>START</b> — buka menu<br><b>SELECT</b> — suara on/off'
+        : '<b>Panah / WASD</b> — bergerak<br><b>Enter / Z / Spasi</b> — pilih, bicara, periksa<br><b>Esc / X</b> — batal, buka menu<br><b>M</b> — suara on/off'}</div>
       <div class="sh" style="margin-top:14px">Tips</div><div class="help-list">
       • Monster muncul di rumput dan di dalam gua. Jalan setapak aman.<br>
       • Bar <span style="color:#ff9ccc">BURST</span> terisi saat terkena serangan. Jika penuh, jurus pamungkas siap!<br>
