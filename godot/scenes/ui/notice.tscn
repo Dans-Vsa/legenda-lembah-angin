@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://ui/theme.tres" id="1_0hatx"]
+[ext_resource type="Script" path="res://scripts/win.gd" id="2_g0meq"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mhhon"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="Notice" type="PanelContainer" unique_id=987011905]
+offset_left = 380.0
+offset_top = 14.0
+offset_right = 380.0
+offset_bottom = 14.0
+theme = ExtResource("1_0hatx")
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mhhon")
+script = ExtResource("2_g0meq")
+
+[node name="Text" type="Label" parent="." unique_id=927744657]
+modulate = Color(1, 0.9529412, 0.76862746, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Desa Lembah Angin"

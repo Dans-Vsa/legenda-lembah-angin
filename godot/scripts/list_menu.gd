@@ -1,7 +1,18 @@
+@tool
 class_name ListMenu
 extends GridContainer
 ## Menu daftar yang bisa dipakai keyboard dan mouse.
 ## Item: {label, right?, value, disabled?, help?, color?, node?}
+## Anak yang diletakkan di editor dan isi "preview" hanya untuk pratinjau;
+## saat game berjalan isinya diatur lewat setup().
+
+## Teks pratinjau di editor. Format "Label" atau "Label|Kanan".
+@export var preview: PackedStringArray = []:
+	set(v):
+		preview = v
+		if Engine.is_editor_hint() and is_node_ready():
+			_build_preview()
+@export var item_width := 0.0
 
 var items: Array = []
 var idx := 0
@@ -10,34 +21,64 @@ var silent := false
 var on_select := Callable()
 var on_cancel := Callable()
 var on_move := Callable()
-var item_width := 0.0
 var _rows: Array = []
 var _cursors: Array = []
 
 
 static func make(parent: Node, p_items: Array, opts := {}) -> ListMenu:
 	var m := ListMenu.new()
-	m.columns = opts.get("cols", 1)
-	m.idx = opts.get("start", 0)
-	m.silent = opts.get("silent", false)
-	m.item_width = opts.get("item_width", 0.0)
-	m.on_select = opts.get("on_select", Callable())
-	m.on_cancel = opts.get("on_cancel", Callable())
-	m.on_move = opts.get("on_move", Callable())
 	m.add_theme_constant_override("h_separation", 12)
 	m.add_theme_constant_override("v_separation", 1)
 	parent.add_child(m)
-	m.set_items(p_items)
-	if not opts.get("inactive", false):
-		m.activate()
+	m.setup(p_items, opts)
 	return m
+
+
+func _ready() -> void:
+	if Engine.is_editor_hint():
+		_build_preview()
+		return
+	for c in get_children():
+		remove_child(c)
+		c.queue_free()
+
+
+func _build_preview() -> void:
+	var list := []
+	for p in preview:
+		var parts := p.split("|")
+		var it := {"label": parts[0]}
+		if parts.size() > 1:
+			it["right"] = parts[1]
+		list.append(it)
+	if list.is_empty() and _rows.is_empty():
+		return
+	set_items(list)
+	if _cursors.size() > 0:
+		_cursors[0].modulate.a = 1.0
+
+
+func setup(p_items: Array, opts := {}) -> ListMenu:
+	deactivate()
+	columns = opts.get("cols", columns)
+	idx = opts.get("start", 0)
+	silent = opts.get("silent", false)
+	item_width = opts.get("item_width", item_width)
+	on_select = opts.get("on_select", Callable())
+	on_cancel = opts.get("on_cancel", Callable())
+	on_move = opts.get("on_move", Callable())
+	set_items(p_items)
+	if not opts.get("inactive", false):
+		activate()
+	return self
 
 
 func set_items(p_items: Array) -> void:
 	items = p_items
 	for r in _rows:
-		remove_child(r)
-		r.queue_free()
+		if is_instance_valid(r):
+			remove_child(r)
+			r.queue_free()
 	_rows.clear()
 	_cursors.clear()
 	if idx >= items.size():
@@ -51,6 +92,7 @@ func set_items(p_items: Array) -> void:
 		var cur := CursorMark.new()
 		cur.custom_minimum_size = Vector2(16, 16)
 		cur.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		cur.modulate.a = 0.0
 		row.add_child(cur)
 		_cursors.append(cur)
 		if it.has("node"):

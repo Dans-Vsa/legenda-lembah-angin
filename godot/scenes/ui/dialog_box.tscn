@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://ui/theme.tres" id="1_i22jp"]
+[ext_resource type="Script" path="res://scripts/win.gd" id="2_hhmjc"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_rm1mb"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xovei"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="DialogBox" type="Control" unique_id=1339882382]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_i22jp")
+
+[node name="Box" type="PanelContainer" parent="." unique_id=2059947487]
+custom_minimum_size = Vector2(880, 140)
+layout_mode = 0
+offset_left = 40.0
+offset_top = 388.0
+offset_right = 40.0
+offset_bottom = 388.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_rm1mb")
+script = ExtResource("2_hhmjc")
+
+[node name="Text" type="Label" parent="Box" unique_id=480849406]
+custom_minimum_size = Vector2(850, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Oh! Kalian para pengembara yang datang dari utara? Syukurlah... desa kami sedang dalam bahaya besar."
+autowrap_mode = 3
+
+[node name="NameTag" type="PanelContainer" parent="." unique_id=1203306931]
+layout_mode = 0
+offset_left = 56.0
+offset_top = 370.0
+offset_right = 56.0
+offset_bottom = 370.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_xovei")
+script = ExtResource("2_hhmjc")
+
+[node name="Name" type="Label" parent="NameTag" unique_id=2107548271]
+modulate = Color(1, 0.9137255, 0.5411765, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Tetua Baram"
+
+[node name="More" type="Label" parent="." unique_id=751685826]
+layout_mode = 0
+offset_left = 894.0
+offset_top = 500.0
+offset_right = 894.0
+offset_bottom = 500.0
+theme_override_font_sizes/font_size = 13
+text = "▼"

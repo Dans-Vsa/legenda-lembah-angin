@@ -1,3 +1,4 @@
+@tool
 class_name Win
 extends PanelContainer
 ## Jendela biru bergaya RPG klasik dengan gradasi dan bingkai terang.

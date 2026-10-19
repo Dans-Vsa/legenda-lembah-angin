@@ -286,18 +286,41 @@ func _rows_image(rows: Array, pal: Dictionary, white := false) -> Image:
 	return img
 
 
+# Memuat PNG dari res://assets bila ada (bisa diedit), jika tidak dibuat dari template.
+func _png(path: String) -> Image:
+	if not ResourceLoader.exists(path):
+		return null
+	var tex: Texture2D = load(path)
+	var img := tex.get_image()
+	if img.is_compressed():
+		img.decompress()
+	img.convert(Image.FORMAT_RGBA8)
+	return img
+
+
+func _whiten(img: Image) -> void:
+	for y in img.get_height():
+		for x in img.get_width():
+			if img.get_pixel(x, y).a > 0.0:
+				img.set_pixel(x, y, Color(1, 1, 1, img.get_pixel(x, y).a))
+
+
 func sprite(key: String, white := false, flip := false) -> ImageTexture:
 	var k := "s|%s|%s|%s" % [key, white, flip]
 	if not _cache.has(k):
-		var d: Array = SPR[key]
-		var img := _rows_image(TPL[d[0]], d[1], white)
+		var img := _png("res://assets/characters/%s.png" % key)
+		if img == null:
+			var d: Array = SPR[key]
+			img = _rows_image(TPL[d[0]], d[1])
+		if white:
+			_whiten(img)
 		if flip:
 			img.flip_x()
 		_cache[k] = ImageTexture.create_from_image(img)
 	return _cache[k]
 
 
-# ---------- Tile peta (16x16, ditampilkan 2x) ----------
+# ---------- Kanvas kecil untuk menggambar objek ----------
 class Painter:
 	var img: Image
 	var rng := RandomNumberGenerator.new()
@@ -326,178 +349,14 @@ class Painter:
 		return rng.randf()
 
 
-func tile(ch: String, v: int, f: int) -> ImageTexture:
-	var k := "t|%s|%d|%d" % [ch, v, f]
-	if _cache.has(k):
-		return _cache[k]
-	var P := Painter.new(v * 977 + ch.unicode_at(0) * 131 + 17)
-	var grass := func() -> void:
-		P.r(0, 0, 16, 16, C("5da544"))
-		for i in 16: P.p(P.ri(16), P.ri(16), C("4e9238"))
-		for i in 5:
-			var gx := P.ri(15); var gy := P.ri(14) + 1
-			P.p(gx, gy, C("7cc456")); P.p(gx + 1, gy - 1, C("7cc456"))
-	var forest_floor := func() -> void:
-		P.r(0, 0, 16, 16, C("3b7d35"))
-		for i in 18: P.p(P.ri(16), P.ri(16), C("2f6a2b"))
-		for i in 5: P.p(P.ri(16), P.ri(16), C("4f9440"))
-	var cave_floor := func() -> void:
-		P.r(0, 0, 16, 16, C("5e5068"))
-		for i in 18: P.p(P.ri(16), P.ri(16), C("52465c"))
-		for i in 8: P.p(P.ri(16), P.ri(16), C("6e6078"))
-		if P.rf() < 0.5:
-			var sx := P.ri(12) + 2; var sy := P.ri(12) + 2
-			P.r(sx, sy, 2, 1, C("7a6c84")); P.p(sx, sy + 1, C("3a3044")); P.p(sx + 1, sy + 1, C("3a3044"))
-	var cobble := func() -> void:
-		P.r(0, 0, 16, 16, C("8a867e"))
-		var by := 0
-		while by < 16:
-			var bx := (2 if by % 8 else 0) - 4
-			while bx < 16:
-				P.r(bx + 1, by + 1, 3, 3, C("b2ada2") if P.rf() < 0.5 else C("a39f95"))
-				P.p(bx + 1, by + 1, C("c8c3b8"))
-				bx += 4
-			by += 4
-	var mountain := func() -> void:
-		for py in range(1, 16):
-			var half := (py - 1) * 0.55 + 0.5
-			for px in 16:
-				var dx := px - 7.5
-				if absf(dx) > half: continue
-				var col := C("9a9aa8") if dx < 0 else C("72727f")
-				if absf(dx) > half - 1: col = C("4a4a58")
-				if py < 5 and absf(dx) < half - 0.5: col = C("f4f4fa") if py < 4 else C("d8d8e4")
-				P.p(px, py, col)
-	var wall := func() -> void:
-		P.r(0, 0, 16, 16, C("e8dcc0"))
-		P.r(0, 0, 16, 1, C("7a5432")); P.r(0, 0, 1, 16, C("7a5432")); P.r(15, 0, 1, 16, C("7a5432"))
-		P.r(0, 15, 16, 1, C("a89878"))
-		for i in 6: P.p(P.ri(14) + 1, P.ri(13) + 1, C("d8ccb0"))
-	var roof := func(base: String, dark: String, light: String) -> void:
-		P.r(0, 0, 16, 16, C(base))
-		var y := 0
-		while y < 16:
-			P.r(0, y + 3, 16, 1, C(dark))
-			var x0 := 2 if y % 8 else 0
-			while x0 < 16:
-				P.p(x0, y, C(light)); P.p(x0, y + 1, C(light)); P.r(x0 + 3, y, 1, 3, C(dark))
-				x0 += 4
-			y += 4
-
-	match ch:
-		".": grass.call()
-		":":
-			grass.call()
-			for i in 3:
-				var fx := P.ri(12) + 2; var fy := P.ri(12) + 2
-				var col: Color = [C("f05a5a"), C("f8e050"), C("ffffff"), C("e080f0")][P.ri(4)]
-				P.p(fx, fy - 1, col); P.p(fx - 1, fy, col); P.p(fx + 1, fy, col); P.p(fx, fy + 1, col); P.p(fx, fy, C("f8e050"))
-		"f": forest_floor.call()
-		",":
-			P.r(0, 0, 16, 16, C("d4b483"))
-			for i in 14: P.p(P.ri(16), P.ri(16), C("c4a170") if P.rf() < 0.5 else C("e2c79a"))
-			for i in 2: P.r(P.ri(14), P.ri(14), 2, 1, C("a88a60"))
-		"~", "=":
-			P.r(0, 0, 16, 16, C("3d7fd0"))
-			for i in 6: P.p(P.ri(16), P.ri(16), C("356fbc"))
-			for wy in [3, 9, 14]:
-				var xo: int = (f * 4 + v * 5 + wy * 3) % 16
-				for k2 in 4: P.p((xo + k2) % 16, wy, C("8cc4f4"))
-				P.p((xo + 1) % 16, wy - 1, C("c8e4fc"))
-			if ch == "=":
-				P.r(0, 1, 16, 14, C("9a6a3a"))
-				for py in [1, 5, 9, 13]: P.r(0, py, 16, 1, C("6e4824"))
-				P.r(0, 0, 16, 1, C("4a2e14")); P.r(0, 15, 16, 1, C("4a2e14"))
-				for i in 4: P.p(P.ri(16), 2 + P.ri(12), C("b07c48"))
-		"T":
-			grass.call()
-			P.r(4, 14, 8, 1, Color(0, 0, 0, 0.25))
-			P.r(7, 10, 2, 5, C("6a4424"))
-			for py in 13:
-				for px in 16:
-					var d := pow(px - 7.5, 2) + pow(py - 6.5, 2)
-					if d < 42:
-						var col2: Color = C("1d5424") if d > 32 else (C("4aa346") if pow(px - 5.5, 2) + pow(py - 4.5, 2) < 9 else C("2f7d33"))
-						P.p(px, py, col2)
-			P.p(5, 4, C("78c868")); P.p(9, 8, C("255f2a")); P.p(11, 6, C("255f2a"))
-		"P":
-			forest_floor.call()
-			P.r(7, 13, 2, 3, C("5a3a1a"))
-			for py in range(1, 14):
-				var w := 1 + ((py - 1) % 4) + floorf((py - 1) / 4.0) * 1.4
-				var x1 := roundi(7.5 - w); var x2 := roundi(7.5 + w)
-				for px in range(x1, x2 + 1):
-					var edge := px == x1 or px == x2
-					P.p(px, py, C("16452a") if edge else (C("3f9a4c") if px < 7 else C("2a7038")))
-		"M":
-			grass.call(); mountain.call()
-		"C":
-			grass.call(); mountain.call()
-			P.r(5, 9, 6, 7, C("141018")); P.r(6, 8, 4, 1, C("141018")); P.r(4, 11, 1, 5, C("2a2430")); P.r(11, 11, 1, 5, C("2a2430"))
-		"V":
-			grass.call()
-			P.r(1, 7, 6, 6, C("e8dcc0")); P.r(0, 5, 8, 3, C("c04030")); P.r(3, 10, 2, 3, C("6a4020"))
-			P.r(9, 8, 6, 5, C("e8dcc0")); P.r(8, 6, 8, 3, C("3a60b0")); P.r(11, 10, 2, 3, C("6a4020"))
-			P.r(0, 13, 16, 1, Color(0, 0, 0, 0.2))
-		"c": cobble.call()
-		"r": roof.call("b8402e", "7e2a1e", "e0664a")
-		"R": roof.call("3a64b8", "24427e", "6a92e0")
-		"w": wall.call()
-		"n":
-			wall.call()
-			P.r(4, 3, 8, 8, C("5a3a20")); P.r(5, 4, 6, 6, C("8ad0f0")); P.r(5, 4, 2, 2, C("d0f0ff")); P.r(7, 4, 2, 6, C("5a3a20")); P.r(5, 6, 6, 1, C("5a3a20"))
-			P.r(3, 11, 10, 1, C("7a5432"))
-		"d":
-			wall.call()
-			P.r(4, 2, 8, 14, C("4a2a10")); P.r(5, 3, 6, 13, C("8a5a30"))
-			P.r(7, 3, 1, 13, C("6a4020")); P.p(9, 9, C("f0d050")); P.r(4, 15, 8, 1, C("3a2a1a"))
-		"|":
-			grass.call()
-			P.r(2, 6, 2, 9, C("7a4a24")); P.r(12, 6, 2, 9, C("7a4a24"))
-			P.r(0, 8, 16, 2, C("b07844")); P.r(0, 12, 16, 2, C("b07844")); P.r(0, 9, 16, 1, C("8a5a30")); P.r(0, 13, 16, 1, C("8a5a30"))
-		"F":
-			cobble.call()
-			for py in 16:
-				for px in 16:
-					var d2 := pow(px - 7.5, 2) + pow(py - 8, 2)
-					if d2 < 56:
-						var col3: Color = C("7a7a88") if d2 > 40 else (C("5a5a68") if d2 > 34 else (C("8cc8f8") if f and (px + py) % 3 == 0 else C("4a90e0")))
-						P.p(px, py, col3)
-			P.r(7, 3, 2, 6, C("c0d8ff")); P.p(7, 2, Color.WHITE); P.p(8, 2, Color.WHITE)
-		"g": cave_floor.call()
-		"E":
-			cave_floor.call()
-			P.r(0, 0, 16, 16, Color(1, 0.94, 0.78, 0.35))
-			for i in 6: P.p(P.ri(16), P.ri(16), C("fff4d8"))
-		"#":
-			P.r(0, 0, 16, 16, C("140f1a"))
-			var by2 := 0
-			while by2 < 16:
-				var bx2 := -3 if by2 % 10 else 0
-				while bx2 < 16:
-					P.r(bx2 + 1, by2 + 1, 5, 4, C("211a2a") if P.rf() < 0.5 else C("261e30"))
-					P.r(bx2 + 1, by2 + 1, 5, 1, C("30263c"))
-					bx2 += 6
-				by2 += 5
-		"K":
-			P.r(0, 0, 16, 16, C("140f1a"))
-			for i in 10: P.p(P.ri(16), P.ri(16), C("261e30"))
-			for spec in [[5, 11, 2], [9, 14, 3], [12, 8, 2]]:
-				var cx: int = spec[0]; var hh: int = spec[1]; var w2: int = spec[2]
-				for py in hh:
-					var ww := maxi(0, roundi(w2 * minf(minf(1.0, (hh - py) / 4.0), py / 3.0 + 0.4)))
-					for px in range(cx - ww, cx + ww + 1):
-						P.p(px, 15 - py, C("a8f0ff") if px < cx else (C("60d8f8") if px == cx else C("2a90c0")))
-		_: grass.call()
-	var tex := ImageTexture.create_from_image(P.img)
-	_cache[k] = tex
-	return tex
-
-
 # ---------- Objek peta ----------
-func obj(kind: String, state := false) -> ImageTexture:
+func obj(kind: String, state := false) -> Texture2D:
 	var k := "o|%s|%s" % [kind, state]
 	if _cache.has(k):
+		return _cache[k]
+	var path := "res://assets/objects/%s.png" % ("chest_open" if kind == "chest" and state else kind)
+	if ResourceLoader.exists(path):
+		_cache[k] = load(path)
 		return _cache[k]
 	var P := Painter.new(1)
 	if kind == "chest":

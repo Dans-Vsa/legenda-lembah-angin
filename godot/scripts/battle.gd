@@ -1,11 +1,13 @@
 class_name Battle
 extends Node2D
-## Battle dengan sistem ATB (Active Time Battle) mode Wait:
+## Battle dengan sistem ATB (Active Time Battle) mode Wait (scene battle.tscn).
 ## ATB berhenti saat menu terbuka atau animasi aksi berjalan.
+## Posisi musuh diambil dari EnemySlots, sprite party dari node Party,
+## dan semua jendela dari node HUD, jadi tata letaknya bisa diubah di editor.
 
 signal finished(result: String)
 
-const SLOTS := {1: [Vector2(250, 200)], 2: [Vector2(210, 140), Vector2(300, 265)], 3: [Vector2(190, 105), Vector2(320, 190), Vector2(190, 285)]}
+const BATTLER_SCENE := "res://scenes/battle/battler.tscn"
 const CMD_HELP := {
 	"attack": "Serangan biasa dengan senjata ke satu musuh.",
 	"item": "Gunakan item dari tas.",
@@ -24,7 +26,6 @@ class KeyHandler:
 
 var state := "off"
 var boss := false
-var bg_type := "field"
 var party: Array = []
 var enemies: Array = []
 var ready_q: Array = []
@@ -43,48 +44,77 @@ var fx_flash := 0.0
 var fx_flash_color := Color.WHITE
 var fx_shake := 0.0
 
-var _bg: Node2D
-var _stage: Node2D
-var _ui: Control
-var _help_win: Win
-var _help: Label
-var _enemy_label: Label
-var _cmd_win: Win
-var _cmd: ListMenu
-var _rows := {}
 var _font: Font
+var _party_base := {}
+
+@onready var _bg: BattleBg = $Background
+@onready var _enemy_layer: Node2D = $Enemies
+@onready var _party_layer: Node2D = $Party
+@onready var _fx: Node2D = $FX
+@onready var _hud: Control = $HUD
+@onready var _help_win: Win = $HUD/HelpWin
+@onready var _help: Label = $HUD/HelpWin/Help
+@onready var _enemy_label: Label = $HUD/EnemyWin/EnemyList
+@onready var _cmd: ListMenu = $HUD/CmdWin/CmdList
+@onready var _sub_win: Win = $HUD/SubWin
+@onready var _sub: ListMenu = $HUD/SubWin/SubList
+@onready var _victory_win: Win = $HUD/VictoryWin
+@onready var _rows := {
+	"kael": $HUD/PartyWin/Rows/Kael, "rina": $HUD/PartyWin/Rows/Rina, "lyra": $HUD/PartyWin/Rows/Lyra,
+}
 
 
-func _init() -> void:
-	_bg = Node2D.new()
-	_stage = Node2D.new()
-	add_child(_bg)
-	add_child(_stage)
-	_bg.draw.connect(_draw_bg)
-	_stage.draw.connect(_draw_stage)
+func _ready() -> void:
 	_font = ThemeDB.fallback_font
+	_fx.draw.connect(_draw_fx)
+	for n in _party_layer.get_children():
+		_party_base[n.name.to_lower()] = n.position
+	_clear_enemies()
+	_hide_windows()
 	visible = false
+
+
+func _clear_enemies() -> void:
+	for c in _enemy_layer.get_children():
+		_enemy_layer.remove_child(c)
+		c.queue_free()
+
+
+func _hide_windows() -> void:
+	_help_win.visible = false
+	_sub_win.visible = false
+	_victory_win.visible = false
+
+
+# Posisi musuh dari marker di EnemySlots/<Satu|Dua|Tiga|Bos>.
+func _slots(count: int) -> Array:
+	var group: String = "Bos" if boss else ["Satu", "Dua", "Tiga"][clampi(count, 1, 3) - 1]
+	var out := []
+	for mk in get_node("EnemySlots/" + group).get_children():
+		out.append(mk.position)
+	return out
 
 
 # ---------- Mulai ----------
 func start(group: Array, p_bg: String, opts := {}) -> void:
 	boss = opts.get("boss", false)
-	bg_type = p_bg
+	_bg.bg_type = p_bg
 	t = 0.0
 	party = Game.party
 	ready_q = []
 	actor = null
 	cursor = []
 	click_handler = Callable()
-	for i in party.size():
-		var m: Member = party[i]
+	for m in party:
 		m.atb = randf_range(0, 45) if m.hp > 0 else 0.0
 		m.defending = false
 		m.poison = false
 		m.ox = 0.0; m.oy = 0.0; m.alpha = 1.0; m.flash = 0.0; m.shake = 0.0
-		m.bx = 772 + i * 30
-		m.by = 118 + i * 84
-	var slots: Array = [Vector2(250, 190)] if boss else SLOTS[group.size()]
+		m.node = _party_layer.get_node(m.display_name())
+		m.bx = _party_base[m.id].x
+		m.by = _party_base[m.id].y
+	var slots := _slots(group.size())
+	_clear_enemies()
 	enemies = []
 	var count := {}
 	for id in group:
@@ -103,18 +133,26 @@ func start(group: Array, p_bg: String, opts := {}) -> void:
 		e.hp = tp["hp"]; e.max_hp = tp["hp"]; e.atk = tp["atk"]; e.def = tp["def"]; e.mag = tp["mag"]; e.spd = tp["spd"]
 		e.atb = randf_range(0, 40)
 		e.x = slots[i].x; e.y = slots[i].y
-		e.tex = Art.sprite(tp["sprite"])
-		e.white = Art.sprite(tp["sprite"], true)
-		e.w = e.tex.get_width() * tp["scale"]
-		e.h = e.tex.get_height() * tp["scale"]
+		var node: BattlerNode = load(BATTLER_SCENE).instantiate()
+		node.name = e.name.replace(" ", "")
+		_enemy_layer.add_child(node)
+		node.texture = load("res://assets/characters/%s.png" % tp["sprite"])
+		node.sprite_scale = tp["scale"]
+		node.position = slots[i]
+		e.node = node
+		var sz := node.size()
+		e.w = sz.x
+		e.h = sz.y
 		e.phase = randf_range(0, 6)
 		enemies.append(e)
 	parts = []; lines = []; bolts = []; rings = []; pops = []
 	fx_flash = 0.0; fx_shake = 0.0
-	_build_ui()
+	_hide_windows()
+	close_command()
+	_hud.visible = true
+	_update_ui()
 	Snd.play(opts.get("music", "battle"))
 	visible = true
-	_bg.queue_redraw()
 	state = "intro"
 	var names := []
 	for e in enemies:
@@ -161,74 +199,8 @@ func alive_party() -> Array:
 
 
 # ---------- UI ----------
-func _build_ui() -> void:
-	_ui = Control.new()
-	_ui.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_ui.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	Game.ui.add_child(_ui)
-	_help_win = Win.make(_ui, 200, 10, 560)
-	_help = Label.new()
-	_help.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_help.add_theme_font_size_override("font_size", 17)
-	_help_win.add_child(_help)
-	_help_win.visible = false
-	var ew := Win.make(_ui, 6, 374, 238, 160)
-	_enemy_label = Label.new()
-	ew.add_child(_enemy_label)
-	_cmd_win = Win.make(_ui, 250, 374, 180, 160)
-	var pw := Win.make(_ui, 436, 374, 518, 160)
-	var vb := VBoxContainer.new()
-	vb.add_theme_constant_override("separation", 0)
-	pw.add_child(vb)
-	var head := HBoxContainer.new()
-	vb.add_child(head)
-	for spec in [["NAMA", 78], ["HP", 120], ["MP", 44], ["ATB / BURST", 150]]:
-		var l := Label.new()
-		l.text = spec[0]
-		l.custom_minimum_size.x = spec[1]
-		l.add_theme_font_size_override("font_size", 12)
-		l.modulate = Color("aeb6ea")
-		head.add_child(l)
-	_rows = {}
-	for m in party:
-		var row := HBoxContainer.new()
-		row.custom_minimum_size.y = 40
-		vb.add_child(row)
-		var name_box := VBoxContainer.new()
-		name_box.custom_minimum_size.x = 78
-		name_box.alignment = BoxContainer.ALIGNMENT_CENTER
-		row.add_child(name_box)
-		var nl := Label.new()
-		nl.text = m.display_name()
-		name_box.add_child(nl)
-		var st := Label.new()
-		st.add_theme_font_size_override("font_size", 11)
-		st.modulate = Color("e0a0ff")
-		name_box.add_child(st)
-		var hp_box := VBoxContainer.new()
-		hp_box.custom_minimum_size.x = 120
-		hp_box.alignment = BoxContainer.ALIGNMENT_CENTER
-		hp_box.add_theme_constant_override("separation", 1)
-		row.add_child(hp_box)
-		var hl := Label.new()
-		hl.add_theme_font_size_override("font_size", 16)
-		hp_box.add_child(hl)
-		var hb := Bar.make(hp_box, "hp", 110, 4)
-		var ml := Label.new()
-		ml.custom_minimum_size.x = 44
-		row.add_child(ml)
-		var g := VBoxContainer.new()
-		g.alignment = BoxContainer.ALIGNMENT_CENTER
-		g.add_theme_constant_override("separation", 4)
-		row.add_child(g)
-		var ab := Bar.make(g, "atb", 150, 7)
-		var bb := Bar.make(g, "burst", 150, 7)
-		_rows[m] = {"name": nl, "st": st, "hp": hl, "hpbar": hb, "mp": ml, "atb": ab, "burst": bb, "key": ""}
-	_update_ui()
-
-
 func help(text: String, enemy := false) -> void:
-	if _help_win == null:
+	if not is_node_ready():
 		return
 	_help_win.visible = text != ""
 	_help.text = text
@@ -236,8 +208,6 @@ func help(text: String, enemy := false) -> void:
 
 
 func _update_ui() -> void:
-	if _ui == null:
-		return
 	var names := {}
 	var order := []
 	for e in enemies:
@@ -250,29 +220,13 @@ func _update_ui() -> void:
 		txt += n + (" x%d" % names[n] if names[n] > 1 else "") + "\n"
 	_enemy_label.text = txt
 	for m in party:
-		var r: Dictionary = _rows[m]
-		var key := "%d|%d|%s|%s" % [m.hp, m.mp, actor == m, m.poison]
-		if r["key"] != key:
-			r["key"] = key
-			r["name"].modulate = Color("ffef7a") if actor == m else (Color("ff7a7a") if m.hp <= 0 else Color.WHITE)
-			r["st"].text = "Racun" if m.poison else ""
-			r["hp"].text = "%d / %d" % [m.hp, m.s["maxHp"]]
-			r["hp"].modulate = Color("ff6060") if m.hp <= 0 else (Color("ffe060") if m.hp < m.s["maxHp"] * 0.25 else Color.WHITE)
-			r["hpbar"].value = float(m.hp) / m.s["maxHp"]
-			r["mp"].text = str(m.mp)
-		r["atb"].value = m.atb / 100.0
-		r["atb"].color_a = Color.WHITE if m.atb >= 100 else Color("fff2a8")
-		r["atb"].color_b = Color("8fe0ff") if m.atb >= 100 else Color("e0a820")
-		r["burst"].value = m.burst / 100.0
-		r["burst"].glow = m.burst >= 100
+		_rows[m.id].show_member(m, actor == m)
 
 
 func teardown() -> void:
 	close_command()
-	if _ui:
-		_ui.queue_free()
-		_ui = null
-	_help_win = null
+	_hide_windows()
+	_clear_enemies()
 	state = "off"
 	cursor = []
 	actor = null
@@ -291,8 +245,9 @@ func _process(dt: float) -> void:
 	for b in party + enemies:
 		b.flash = maxf(0.0, b.flash - dt * 4.0)
 		b.shake = maxf(0.0, b.shake - dt)
+	_sync_nodes()
 	_update_ui()
-	_stage.queue_redraw()
+	_fx.queue_redraw()
 	if state != "run":
 		return
 	for m in party:
@@ -314,6 +269,36 @@ func _process(dt: float) -> void:
 		open_command(ready_q[0])
 
 
+# Menyalin status animasi (ox, oy, flash, dll) ke node sprite.
+func _sync_nodes() -> void:
+	var sh := (randf() - 0.5) * fx_shake if fx_shake > 0 else 0.0
+	var off := Vector2(sh, sh * 0.5)
+	_enemy_layer.position = off
+	_party_layer.position = off
+	_fx.position = off
+	for e in enemies:
+		var n: BattlerNode = e.node
+		var shk := sin(t * 90.0) * 6.0 if e.shake > 0 else 0.0
+		n.position = Vector2(e.x + e.ox + shk, e.y + e.oy + sin(t * 2.2 + e.phase) * 3.0)
+		n.modulate.a = e.alpha
+		n.visible = e.alpha > 0.01
+		n.set_flash(e.flash)
+	for m in party:
+		var n: BattlerNode = m.node
+		var shk := sin(t * 90.0) * 5.0 if m.shake > 0 else 0.0
+		n.position = Vector2(m.bx + m.ox + shk, m.by + m.oy)
+		var ko: bool = m.hp <= 0
+		n.sprite.rotation = -PI / 2.0 if ko else 0.0
+		var low := 4.0 if m.hp < m.s["maxHp"] * 0.25 else 0.0
+		n.sprite.position = Vector2(0, 24) if ko else Vector2(0, low + sin(t * 3.0 + m.bx) * 1.2)
+		n.sprite.modulate = Color(0.75, 0.75, 0.8, 0.65) if ko else Color.WHITE
+		n.set_flash(0.0 if ko else m.flash)
+		n.defending = m.defending and not ko
+		n.poison = m.poison and not ko
+		n.anim_t = t
+		n.queue_redraw()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not visible or not click_handler.is_valid():
 		return
@@ -331,7 +316,6 @@ func open_command(m: Member) -> void:
 
 
 func _show_commands(m: Member) -> void:
-	close_command()
 	var c: Dictionary = Data.CHARS[m.id]
 	var items := []
 	if m.burst >= 100:
@@ -341,16 +325,15 @@ func _show_commands(m: Member) -> void:
 	items.append({"label": "Item", "value": "item", "disabled": Game.items.is_empty(), "help": CMD_HELP["item"]})
 	items.append({"label": "Bertahan", "value": "defend", "help": CMD_HELP["defend"]})
 	items.append({"label": "Kabur", "value": "flee", "disabled": boss, "help": "Tidak bisa kabur dari pertarungan ini!" if boss else CMD_HELP["flee"]})
-	_cmd = ListMenu.make(_cmd_win, items, {
+	_cmd.setup(items, {
 		"on_select": func(it, _i): _on_command(m, it["value"]),
 		"on_move": func(it, _i): help("%s: %s" % [m.display_name(), it["help"]]),
 	})
 
 
 func close_command() -> void:
-	if _cmd:
-		_cmd.destroy()
-		_cmd = null
+	_cmd.deactivate()
+	_cmd.set_items([])
 
 
 func _on_command(m: Member, v: String) -> void:
@@ -388,8 +371,7 @@ func _on_command(m: Member, v: String) -> void:
 				act = {"type": "item", "id": r2["id"]}
 				targets = r2["targets"]
 	if targets == null:
-		if _cmd:
-			_cmd.activate()
+		_cmd.activate()
 		return
 	close_command()
 	await perform(m, act, targets)
@@ -399,16 +381,16 @@ func _on_command(m: Member, v: String) -> void:
 func _choose_from_list(m: Member, items: Array, target_of: Callable, mem: String):
 	while true:
 		var w := Waiter.new()
-		var win := Win.make(_ui, 6, 374, 424, 160)
-		var lm := ListMenu.make(win, items, {
+		_sub_win.visible = true
+		_sub.setup(items, {
 			"cols": 2, "start": m.get(mem), "item_width": 186,
 			"on_move": func(it, _i): help(it["help"]),
 			"on_select": func(it, i): w.done.emit([it["value"], i]),
 			"on_cancel": func(): w.done.emit(null),
 		})
 		var res = await w.done
-		lm.destroy()
-		win.queue_free()
+		_sub.deactivate()
+		_sub_win.visible = false
 		if res == null:
 			help("")
 			return null
@@ -834,24 +816,19 @@ func victory() -> void:
 		m.defending = false
 	for m in party:
 		_victory_hop(m)
-	var win := Win.make(_ui, 250, 60, 460)
-	var vb := VBoxContainer.new()
-	win.add_child(vb)
-	var title := Label.new()
-	title.text = "KEMENANGAN!"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 26)
-	title.modulate = Color("ffe98a")
-	vb.add_child(title)
-	var rows := [["EXP didapat", str(xp)], ["Gold didapat", str(gold)]]
+	var rows: VBoxContainer = _victory_win.get_node("VBox/Rows")
+	for c in rows.get_children():
+		rows.remove_child(c)
+		c.queue_free()
+	var lines_out := [["EXP didapat", str(xp)], ["Gold didapat", str(gold)]]
 	if drops.size() > 0:
 		var names := []
 		for d in drops:
 			names.append(Data.ITEMS[d]["name"])
-		rows.append(["Item", ", ".join(names)])
-	for r in rows:
+		lines_out.append(["Item", ", ".join(names)])
+	for r in lines_out:
 		var hb := HBoxContainer.new()
-		vb.add_child(hb)
+		rows.add_child(hb)
 		var a := Label.new()
 		a.text = r[0]
 		a.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -864,13 +841,9 @@ func victory() -> void:
 		var l := Label.new()
 		l.text = "★ " + msg
 		l.modulate = Color("9ff59f")
-		vb.add_child(l)
-	var hint := Label.new()
-	hint.text = "Tekan Enter ▶"
-	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	hint.add_theme_font_size_override("font_size", 12)
-	hint.modulate = Color("aeb6ea")
-	vb.add_child(hint)
+		rows.add_child(l)
+	_victory_win.size = Vector2.ZERO
+	_victory_win.visible = true
 	if msgs.size() > 0:
 		get_tree().create_timer(0.3).timeout.connect(func(): Snd.sfx("levelup"))
 	await wait(0.5)
@@ -1112,150 +1085,9 @@ func fx(kind: String, targets: Array, src: Battler) -> void:
 
 
 # ---------- Gambar ----------
-func _ellipse(node: Node2D, c: Vector2, r: Vector2, col: Color) -> void:
-	var pts := PackedVector2Array()
-	for i in 24:
-		var a := TAU * i / 24.0
-		pts.append(c + Vector2(cos(a) * r.x, sin(a) * r.y))
-	node.draw_colored_polygon(pts, col)
-
-
-func _draw_bg() -> void:
-	var n := _bg
-	var rng := RandomNumberGenerator.new()
-	rng.seed = bg_type.length() * 99 + 7
-	var grad := func(y0: float, y1: float, stops: Array) -> void:
-		var seg := (y1 - y0) / (stops.size() - 1)
-		for i in stops.size() - 1:
-			var a: Color = Color(stops[i])
-			var b: Color = Color(stops[i + 1])
-			var ya := y0 + seg * i
-			n.draw_polygon(PackedVector2Array([Vector2(0, ya), Vector2(960, ya), Vector2(960, ya + seg), Vector2(0, ya + seg)]), PackedColorArray([a, a, b, b]))
-	var ridge := func(base: float, amp: float, col: Color, sd: float) -> void:
-		var pts := PackedVector2Array([Vector2(0, 540)])
-		var x := 0.0
-		while x <= 960.0:
-			pts.append(Vector2(x, base - amp * (0.5 + 0.3 * sin(x / 90.0 + sd) + 0.2 * sin(x / 37.0 + sd * 2.0))))
-			x += 8.0
-		pts.append(Vector2(960, 540))
-		n.draw_colored_polygon(pts, col)
-	var tufts := func(y0: float, cols: Array, count: int) -> void:
-		for i in count:
-			var tx := rng.randf() * 960.0
-			var ty := y0 + rng.randf() * (540.0 - y0)
-			var s := 1.0 + (ty - y0) / 120.0
-			var col: Color = Color(cols[rng.randi() % cols.size()])
-			n.draw_polyline(PackedVector2Array([Vector2(tx - 3 * s, ty - 5 * s), Vector2(tx, ty), Vector2(tx + 3 * s, ty - 6 * s)]), col, 1.5)
-	match bg_type:
-		"field":
-			grad.call(0, 240, ["4f8fd8", "a8d0f4", "e4f2ff"])
-			for i in 6:
-				var cx := rng.randf() * 960.0
-				var cy := 30.0 + rng.randf() * 90.0
-				for j in 5:
-					_ellipse(n, Vector2(cx + j * 22 - 44, cy + sin(j) * 6), Vector2(26, 14), Color(1, 1, 1, 0.85))
-			ridge.call(190, 70, Color("8ea8cc"), 1.0)
-			ridge.call(212, 40, Color("6f9a6a"), 3.0)
-			grad.call(205, 540, ["78b85a", "4f9a3c", "2f6e26"])
-			for i in 14:
-				var y := 210.0 + pow(i / 14.0, 1.7) * 330.0
-				n.draw_rect(Rect2(0, y, 960, 2 + i * 0.5), Color(0, 0, 0, 0.05))
-			tufts.call(215, ["3a7a2a", "8ad06a", "2f6a22"], 160)
-		"forest":
-			grad.call(0, 250, ["0f2416", "24502e", "4a7a48"])
-			for i in 9:
-				var lx := rng.randf() * 960.0
-				n.draw_colored_polygon(PackedVector2Array([Vector2(lx, 0), Vector2(lx + 40, 0), Vector2(lx + 160, 250), Vector2(lx + 90, 250)]), Color(1, 1, 0.78, 0.05))
-			for i in 16:
-				var tx := rng.randf() * 960.0
-				var tw2 := 16.0 + rng.randf() * 24.0
-				n.draw_rect(Rect2(tx, 0, tw2, 250), Color("14281a") if i % 2 else Color("1b3522"))
-				_ellipse(n, Vector2(tx + tw2 / 2.0, 10 + rng.randf() * 40), Vector2(60 + rng.randf() * 40, 50), Color("1a3a22") if i % 2 else Color("21452a"))
-			ridge.call(240, 30, Color("24482a"), 2.0)
-			grad.call(228, 540, ["3d6e30", "2c5524", "1a3616"])
-			for i in 14:
-				_ellipse(n, Vector2(rng.randf() * 960, 260 + rng.randf() * 260), Vector2(40 + rng.randf() * 50, 8 + rng.randf() * 8), Color(0, 0, 0, 0.12))
-			tufts.call(232, ["5a9a40", "2a5a20", "78b050"], 140)
-		_:
-			var is_boss := bg_type == "boss"
-			grad.call(0, 260, ["120818", "2a1438", "3a2050"] if is_boss else ["0e0a16", "1e1828", "2e2640"])
-			for i in 20:
-				var sx := rng.randf() * 960.0
-				var sw := 18.0 + rng.randf() * 34.0
-				var sh := 40.0 + rng.randf() * 110.0
-				n.draw_colored_polygon(PackedVector2Array([Vector2(sx, 0), Vector2(sx + sw, 0), Vector2(sx + sw / 2, sh)]), Color("16111f"))
-				n.draw_line(Vector2(sx, 0), Vector2(sx + sw / 2, sh), Color("2e2640"), 1.0)
-			for i in 9:
-				var cx := rng.randf() * 960.0
-				var cy := 60.0 + rng.randf() * 160.0
-				var hh := 10.0 + rng.randf() * 16.0
-				var glow := Color(0.75, 0.47, 1.0) if is_boss else Color(0.43, 0.86, 1.0)
-				for k in 4:
-					n.draw_circle(Vector2(cx, cy), 40.0 - k * 9.0, Color(glow, 0.08))
-				n.draw_colored_polygon(PackedVector2Array([Vector2(cx, cy - hh), Vector2(cx + 5, cy), Vector2(cx, cy + 4), Vector2(cx - 5, cy)]), Color("c080ff") if is_boss else Color("70e0ff"))
-			ridge.call(250, 30, Color("2a1a3a") if is_boss else Color("2a2236"), 4.0)
-			grad.call(238, 540, ["3a2a4a", "2a1e36", "160e1e"] if is_boss else ["4a3e56", "342a40", "1c1626"])
-			for i in 26:
-				_ellipse(n, Vector2(rng.randf() * 960, 260 + rng.randf() * 260), Vector2(10 + rng.randf() * 30, 4 + rng.randf() * 8), Color(0, 0, 0, 0.18))
-			if is_boss:
-				for i in 12:
-					_ellipse(n, Vector2(rng.randf() * 960, 120 + rng.randf() * 300), Vector2(120 + rng.randf() * 120, 30 + rng.randf() * 30), Color(0.7, 0.55, 0.86, 0.07))
-
-
-func _draw_stage() -> void:
-	var n := _stage
-	var sh := (randf() - 0.5) * fx_shake if fx_shake > 0 else 0.0
-	n.position = Vector2(sh, sh * 0.5)
-	var sorted := enemies.duplicate()
-	sorted.sort_custom(func(a, b): return a.y < b.y)
-	for e in sorted:
-		if e.alpha <= 0.01:
-			continue
-		var bob := sin(t * 2.2 + e.phase) * 3.0
-		var shk := sin(t * 90.0) * 6.0 if e.shake > 0 else 0.0
-		var x: float = e.x + e.ox + shk
-		var y: float = e.y + e.oy + bob
-		_ellipse(n, Vector2(e.x + e.ox, e.y + e.h / 2.0 - 2), Vector2(e.w * 0.38, e.w * 0.38 * 0.22), Color(0, 0, 0, 0.3 * e.alpha))
-		var rect := Rect2(roundf(x - e.w / 2.0), roundf(y - e.h / 2.0), e.w, e.h)
-		n.draw_texture_rect(e.tex, rect, false, Color(1, 1, 1, e.alpha))
-		if e.flash > 0:
-			n.draw_texture_rect(e.white, rect, false, Color(1, 1, 1, e.flash * e.alpha))
-	for m in party:
-		var shk := sin(t * 90.0) * 5.0 if m.shake > 0 else 0.0
-		var x: float = m.bx + m.ox + shk
-		var y: float = m.by + m.oy
-		_ellipse(n, Vector2(m.bx + m.ox, m.by + 34), Vector2(24, 5), Color(0, 0, 0, 0.3))
-		var tex := Art.sprite(m.id)
-		if m.hp <= 0:
-			n.draw_set_transform(Vector2(x, y + 24), -PI / 2.0, Vector2.ONE)
-			n.draw_texture_rect(tex, Rect2(-32, -36, 64, 72), false, Color(0.75, 0.75, 0.8, 0.65))
-			n.draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-			continue
-		var low := 4.0 if m.hp < m.s["maxHp"] * 0.25 else 0.0
-		var breath := sin(t * 3.0 + m.bx) * 1.2
-		var rect := Rect2(roundf(x - 32), roundf(y - 36 + low + breath), 64, 72)
-		n.draw_texture_rect(tex, rect, false)
-		if m.flash > 0:
-			n.draw_texture_rect(Art.sprite(m.id, true), rect, false, Color(1, 1, 1, m.flash))
-		if m.defending:
-			n.draw_arc(Vector2(x - 6, y), 40, PI * 0.6, PI * 1.4, 16, Color(0.59, 0.82, 1.0, 0.6), 3.0)
-		if m.poison:
-			for i in 3:
-				var k := fmod(t * 0.8 + i / 3.0, 1.0)
-				n.draw_circle(Vector2(x + 18 + i * 4, y - 30 - k * 24), 3, Color(0.75, 0.44, 0.88, 1.0 - k))
-	_draw_fx(n)
-	for b in cursor:
-		var p := pos(b)
-		var top: float = (p.y - b.h / 2.0 - 12) if b.is_enemy else p.y - 46
-		var bob := sin(t * 10.0) * 4.0
-		var tri := PackedVector2Array([Vector2(p.x - 10, top - 16 + bob), Vector2(p.x + 10, top - 16 + bob), Vector2(p.x, top - 2 + bob)])
-		n.draw_colored_polygon(tri, Color.WHITE)
-		n.draw_polyline(PackedVector2Array([tri[0], tri[1], tri[2], tri[0]]), Color.BLACK, 2.0)
-	if fx_flash > 0:
-		n.draw_rect(Rect2(-20, -20, 1000, 580), Color(fx_flash_color, minf(1.0, fx_flash) * 0.8))
-
-
-func _draw_fx(n: Node2D) -> void:
+# Efek (partikel, garis, petir, angka damage, kursor target) digambar di node FX.
+func _draw_fx() -> void:
+	var n := _fx
 	for r in rings:
 		var k: float = 1.0 - r["life"] / r["max"]
 		var c: Color = r["color"]
@@ -1291,3 +1123,12 @@ func _draw_fx(n: Node2D) -> void:
 		var p: Vector2 = q["p"] + Vector2(-100, yo)
 		n.draw_string_outline(_font, p, q["text"], HORIZONTAL_ALIGNMENT_CENTER, 200, q["size"], 6, Color(0, 0, 0, a))
 		n.draw_string(_font, p, q["text"], HORIZONTAL_ALIGNMENT_CENTER, 200, q["size"], Color(c, a))
+	for b in cursor:
+		var p := pos(b)
+		var top: float = (p.y - b.h / 2.0 - 12) if b.is_enemy else p.y - 46
+		var bob := sin(t * 10.0) * 4.0
+		var tri := PackedVector2Array([Vector2(p.x - 10, top - 16 + bob), Vector2(p.x + 10, top - 16 + bob), Vector2(p.x, top - 2 + bob)])
+		n.draw_colored_polygon(tri, Color.WHITE)
+		n.draw_polyline(PackedVector2Array([tri[0], tri[1], tri[2], tri[0]]), Color.BLACK, 2.0)
+	if fx_flash > 0:
+		n.draw_rect(Rect2(-20, -20, 1000, 580), Color(fx_flash_color, minf(1.0, fx_flash) * 0.8))

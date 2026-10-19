@@ -1,0 +1,132 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://ui/theme.tres" id="1_2i61c"]
+[ext_resource type="Script" path="res://scripts/win.gd" id="2_85p0y"]
+[ext_resource type="Script" path="res://scripts/list_menu.gd" id="3_kdvrj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_atewb"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mk32u"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_quulj"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_xk8hd"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="Shop" type="Control" unique_id=1182189555]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_2i61c")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=103425894]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0.04, 0.35)
+
+[node name="HeadWin" type="PanelContainer" parent="." unique_id=1605967722]
+custom_minimum_size = Vector2(928, 50)
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 16.0
+offset_bottom = 16.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_atewb")
+script = ExtResource("2_85p0y")
+
+[node name="Head" type="HBoxContainer" parent="HeadWin" unique_id=389396864]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HeadWin/Head" unique_id=1242922068]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "Toko Pak Darmo"
+
+[node name="Gold" type="Label" parent="HeadWin/Head" unique_id=995741562]
+modulate = Color(1, 0.9137255, 0.627451, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Gold: 150"
+
+[node name="ListWin" type="PanelContainer" parent="." unique_id=64434529]
+custom_minimum_size = Vector2(470, 448)
+layout_mode = 0
+offset_left = 16.0
+offset_top = 76.0
+offset_right = 16.0
+offset_bottom = 76.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mk32u")
+script = ExtResource("2_85p0y")
+
+[node name="List" type="GridContainer" parent="ListWin" unique_id=1208001942]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+script = ExtResource("3_kdvrj")
+preview = PackedStringArray("Ramuan|30 G", "Ramuan Super|120 G", "Eter|90 G", "Penawar|15 G", "Kristal Kehidupan|200 G", "Pedang Baja|250 G", "Sarung Tinju Besi|230 G", "Tongkat Kristal|260 G", "Rompi Kulit|120 G", "Zirah Rantai|380 G")
+item_width = 440.0
+
+[node name="InfoWin" type="PanelContainer" parent="." unique_id=267735673]
+custom_minimum_size = Vector2(448, 448)
+layout_mode = 0
+offset_left = 496.0
+offset_top = 76.0
+offset_right = 496.0
+offset_bottom = 76.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_quulj")
+script = ExtResource("2_85p0y")
+
+[node name="Info" type="VBoxContainer" parent="InfoWin" unique_id=392975963]
+layout_mode = 2
+
+[node name="Contoh" type="Label" parent="InfoWin/Info" unique_id=1992250922]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Ramuan — Memulihkan 150 HP satu kawan."
+
+[node name="OwnerWin" type="PanelContainer" parent="." unique_id=1808390960]
+visible = false
+custom_minimum_size = Vector2(448, 150)
+layout_mode = 0
+offset_left = 496.0
+offset_top = 300.0
+offset_right = 496.0
+offset_bottom = 300.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_xk8hd")
+script = ExtResource("2_85p0y")
+
+[node name="OwnerBox" type="VBoxContainer" parent="OwnerWin" unique_id=286134593]
+layout_mode = 2
+
+[node name="Prompt" type="Label" parent="OwnerWin/OwnerBox" unique_id=449587275]
+modulate = Color(1, 0.9137255, 0.5411765, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Pakaikan Rompi Kulit ke siapa?"
+
+[node name="Owners" type="GridContainer" parent="OwnerWin/OwnerBox" unique_id=148863300]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+script = ExtResource("3_kdvrj")
+preview = PackedStringArray("Kael|Baju Kain", "Rina|Baju Kain", "Lyra|Baju Kain")
+item_width = 410.0

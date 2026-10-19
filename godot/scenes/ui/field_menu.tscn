@@ -1,0 +1,145 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://ui/theme.tres" id="1_pchis"]
+[ext_resource type="Script" path="res://scripts/win.gd" id="2_60pdn"]
+[ext_resource type="Script" path="res://scripts/list_menu.gd" id="3_oytil"]
+[ext_resource type="PackedScene" path="res://scenes/ui/party_card.tscn" id="4_6mgqb"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_oyxdf"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_1xw42"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_e8u6q"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_a1g38"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="FieldMenu" type="Control" unique_id=670951874]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_pchis")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=1808172171]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0.04, 0.35)
+
+[node name="CmdWin" type="PanelContainer" parent="." unique_id=1441215572]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 16.0
+offset_bottom = 16.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_oyxdf")
+script = ExtResource("2_60pdn")
+
+[node name="Cmd" type="GridContainer" parent="CmdWin" unique_id=891053251]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+script = ExtResource("3_oytil")
+preview = PackedStringArray("Item", "Skill", "Status", "Simpan", "Ke Judul", "Tutup")
+
+[node name="InfoWin" type="PanelContainer" parent="." unique_id=1407031699]
+custom_minimum_size = Vector2(190, 114)
+layout_mode = 0
+offset_left = 16.0
+offset_top = 410.0
+offset_right = 16.0
+offset_bottom = 410.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_1xw42")
+script = ExtResource("2_60pdn")
+
+[node name="Info" type="VBoxContainer" parent="InfoWin" unique_id=1923063439]
+layout_mode = 2
+
+[node name="Gold" type="Label" parent="InfoWin/Info" unique_id=847954753]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Gold  150"
+
+[node name="Waktu" type="Label" parent="InfoWin/Info" unique_id=1292028472]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Waktu  0:00:00"
+
+[node name="Lokasi" type="Label" parent="InfoWin/Info" unique_id=1770755918]
+modulate = Color(0.7529412, 0.7764706, 0.9411765, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Desa Lembah Angin"
+
+[node name="CardsWin" type="PanelContainer" parent="." unique_id=139828256]
+custom_minimum_size = Vector2(370, 508)
+layout_mode = 0
+offset_left = 216.0
+offset_top = 16.0
+offset_right = 216.0
+offset_bottom = 16.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_e8u6q")
+script = ExtResource("2_60pdn")
+
+[node name="Cards" type="GridContainer" parent="CardsWin" unique_id=956111808]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+script = ExtResource("3_oytil")
+preview = PackedStringArray()
+item_width = 330.0
+
+[node name="Kael" parent="CardsWin/Cards" unique_id=928038331 instance=ExtResource("4_6mgqb")]
+layout_mode = 2
+
+[node name="Rina" parent="CardsWin/Cards" unique_id=1799819152 instance=ExtResource("4_6mgqb")]
+layout_mode = 2
+preview_id = "rina"
+
+[node name="Lyra" parent="CardsWin/Cards" unique_id=925859211 instance=ExtResource("4_6mgqb")]
+layout_mode = 2
+preview_id = "lyra"
+
+[node name="SideWin" type="PanelContainer" parent="." unique_id=2102386926]
+custom_minimum_size = Vector2(348, 508)
+layout_mode = 0
+offset_left = 596.0
+offset_top = 16.0
+offset_right = 596.0
+offset_bottom = 16.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_a1g38")
+script = ExtResource("2_60pdn")
+
+[node name="Side" type="VBoxContainer" parent="SideWin" unique_id=1419425111]
+layout_mode = 2
+
+[node name="Judul" type="Label" parent="SideWin/Side" unique_id=1467972058]
+modulate = Color(1, 0.9137255, 0.5411765, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Kontrol"
+
+[node name="Isi" type="Label" parent="SideWin/Side" unique_id=103075293]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Panah / WASD — bergerak
+Enter / Z / Spasi — pilih
+Esc / X — batal, buka menu"

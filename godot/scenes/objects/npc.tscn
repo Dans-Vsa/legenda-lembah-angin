@@ -1,0 +1,18 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/entities/map_npc.gd" id="1_i4yyw"]
+[ext_resource type="Texture2D" path="res://assets/characters/kid.png" id="2_qgsx0"]
+
+[node name="Npc" type="Node2D" unique_id=1908902831]
+script = ExtResource("1_i4yyw")
+lines = PackedStringArray()
+
+[node name="Shadow" type="Polygon2D" parent="." unique_id=194531187]
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(27, 30, 26.46162, 31.236069, 24.899187, 32.351143, 22.465637, 33.23607, 19.399187, 33.804226, 16, 34, 12.600813, 33.804226, 9.534363, 33.23607, 7.100813, 32.351143, 5.5383787, 31.236069, 5, 30, 5.5383787, 28.763931, 7.100813, 27.648859, 9.534363, 26.763931, 12.600813, 26.195774, 16, 26, 19.399187, 26.195774, 22.465637, 26.763931, 24.899187, 27.648859, 26.46162, 28.763931)
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=813432791]
+scale = Vector2(2, 2)
+texture = ExtResource("2_qgsx0")
+centered = false
+offset = Vector2(0, -2)

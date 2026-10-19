@@ -1,0 +1,309 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/battle.gd" id="1_mxe8n"]
+[ext_resource type="Script" path="res://scripts/battle/battle_bg.gd" id="1_oiw7q"]
+[ext_resource type="PackedScene" path="res://scenes/battle/battler.tscn" id="2_fisqk"]
+[ext_resource type="Texture2D" path="res://assets/characters/wolf.png" id="3_mxe8n"]
+[ext_resource type="Texture2D" path="res://assets/characters/slime.png" id="4_icoan"]
+[ext_resource type="Texture2D" path="res://assets/characters/bee.png" id="5_kd6yx"]
+[ext_resource type="Texture2D" path="res://assets/characters/rina.png" id="6_t1kk3"]
+[ext_resource type="Texture2D" path="res://assets/characters/lyra.png" id="7_n6gaa"]
+[ext_resource type="Theme" path="res://ui/theme.tres" id="8_6ofp8"]
+[ext_resource type="Script" path="res://scripts/win.gd" id="9_mvulk"]
+[ext_resource type="PackedScene" path="res://scenes/battle/party_row.tscn" id="10_w40i5"]
+[ext_resource type="Script" path="res://scripts/list_menu.gd" id="11_icoan"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_mxe8n"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_icoan"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_kd6yx"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t1kk3"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_n6gaa"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6ofp8"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="Battle" type="Node2D" unique_id=1788659710]
+script = ExtResource("1_mxe8n")
+
+[node name="Background" type="Node2D" parent="." unique_id=590129811]
+script = ExtResource("1_oiw7q")
+
+[node name="EnemySlots" type="Node2D" parent="." unique_id=1875913301]
+
+[node name="Satu" type="Node2D" parent="EnemySlots" unique_id=1800200593]
+
+[node name="Slot1" type="Marker2D" parent="EnemySlots/Satu" unique_id=2012681003]
+position = Vector2(250, 200)
+
+[node name="Dua" type="Node2D" parent="EnemySlots" unique_id=252409000]
+
+[node name="Slot1" type="Marker2D" parent="EnemySlots/Dua" unique_id=597045403]
+position = Vector2(210, 140)
+
+[node name="Slot2" type="Marker2D" parent="EnemySlots/Dua" unique_id=92653950]
+position = Vector2(300, 265)
+
+[node name="Tiga" type="Node2D" parent="EnemySlots" unique_id=1814116819]
+
+[node name="Slot1" type="Marker2D" parent="EnemySlots/Tiga" unique_id=1802512370]
+position = Vector2(190, 105)
+
+[node name="Slot2" type="Marker2D" parent="EnemySlots/Tiga" unique_id=1856067273]
+position = Vector2(320, 190)
+
+[node name="Slot3" type="Marker2D" parent="EnemySlots/Tiga" unique_id=1058617557]
+position = Vector2(190, 285)
+
+[node name="Bos" type="Node2D" parent="EnemySlots" unique_id=1142979521]
+
+[node name="Slot1" type="Marker2D" parent="EnemySlots/Bos" unique_id=261682690]
+position = Vector2(250, 190)
+
+[node name="Enemies" type="Node2D" parent="." unique_id=600725956]
+
+[node name="Serigala" parent="Enemies" unique_id=1812124859 instance=ExtResource("2_fisqk")]
+position = Vector2(190, 105)
+texture = ExtResource("3_mxe8n")
+sprite_scale = 5.0
+
+[node name="Lendir" parent="Enemies" unique_id=745131388 instance=ExtResource("2_fisqk")]
+position = Vector2(320, 190)
+texture = ExtResource("4_icoan")
+sprite_scale = 5.0
+
+[node name="Lebah" parent="Enemies" unique_id=418019673 instance=ExtResource("2_fisqk")]
+position = Vector2(190, 285)
+texture = ExtResource("5_kd6yx")
+sprite_scale = 5.0
+
+[node name="Party" type="Node2D" parent="." unique_id=1193519266]
+
+[node name="Kael" parent="Party" unique_id=1820615209 instance=ExtResource("2_fisqk")]
+position = Vector2(772, 118)
+
+[node name="Rina" parent="Party" unique_id=1873268616 instance=ExtResource("2_fisqk")]
+position = Vector2(802, 202)
+texture = ExtResource("6_t1kk3")
+
+[node name="Lyra" parent="Party" unique_id=554015631 instance=ExtResource("2_fisqk")]
+position = Vector2(832, 286)
+texture = ExtResource("7_n6gaa")
+
+[node name="FX" type="Node2D" parent="." unique_id=2127217912]
+
+[node name="HUD" type="Control" parent="." unique_id=1006309606]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 960.0
+offset_bottom = 540.0
+mouse_filter = 2
+theme = ExtResource("8_6ofp8")
+
+[node name="HelpWin" type="PanelContainer" parent="HUD" unique_id=487779614]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 0
+offset_left = 200.0
+offset_top = 10.0
+offset_right = 200.0
+offset_bottom = 10.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_mxe8n")
+script = ExtResource("9_mvulk")
+
+[node name="Help" type="Label" parent="HUD/HelpWin" unique_id=814308049]
+layout_mode = 2
+theme_override_font_sizes/font_size = 17
+text = "Serigala Abu, Lendir Hijau, Lebah Raksasa muncul!"
+horizontal_alignment = 1
+
+[node name="EnemyWin" type="PanelContainer" parent="HUD" unique_id=1893514444]
+custom_minimum_size = Vector2(238, 160)
+layout_mode = 0
+offset_left = 6.0
+offset_top = 374.0
+offset_right = 6.0
+offset_bottom = 374.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_icoan")
+script = ExtResource("9_mvulk")
+
+[node name="EnemyList" type="Label" parent="HUD/EnemyWin" unique_id=368778440]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Serigala Abu
+Lendir Hijau
+Lebah Raksasa"
+
+[node name="CmdWin" type="PanelContainer" parent="HUD" unique_id=411674299]
+custom_minimum_size = Vector2(180, 160)
+layout_mode = 0
+offset_left = 250.0
+offset_top = 374.0
+offset_right = 250.0
+offset_bottom = 374.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_kd6yx")
+script = ExtResource("9_mvulk")
+
+[node name="CmdList" type="GridContainer" parent="HUD/CmdWin" unique_id=1789593983]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+script = ExtResource("11_icoan")
+preview = PackedStringArray("Serang", "Teknik", "Item", "Bertahan", "Kabur")
+
+[node name="PartyWin" type="PanelContainer" parent="HUD" unique_id=513040374]
+custom_minimum_size = Vector2(518, 160)
+layout_mode = 0
+offset_left = 436.0
+offset_top = 374.0
+offset_right = 436.0
+offset_bottom = 374.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_t1kk3")
+script = ExtResource("9_mvulk")
+
+[node name="Rows" type="VBoxContainer" parent="HUD/PartyWin" unique_id=1202945867]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="Header" type="HBoxContainer" parent="HUD/PartyWin/Rows" unique_id=200642110]
+layout_mode = 2
+
+[node name="Nama" type="Label" parent="HUD/PartyWin/Rows/Header" unique_id=362161087]
+modulate = Color(0.68235296, 0.7137255, 0.91764706, 1)
+custom_minimum_size = Vector2(78, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "NAMA"
+
+[node name="HP" type="Label" parent="HUD/PartyWin/Rows/Header" unique_id=177929696]
+modulate = Color(0.68235296, 0.7137255, 0.91764706, 1)
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "HP"
+
+[node name="MP" type="Label" parent="HUD/PartyWin/Rows/Header" unique_id=399987103]
+modulate = Color(0.68235296, 0.7137255, 0.91764706, 1)
+custom_minimum_size = Vector2(44, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "MP"
+
+[node name="Gauge" type="Label" parent="HUD/PartyWin/Rows/Header" unique_id=159364755]
+modulate = Color(0.68235296, 0.7137255, 0.91764706, 1)
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "ATB / BURST"
+
+[node name="Kael" parent="HUD/PartyWin/Rows" unique_id=64001112 instance=ExtResource("10_w40i5")]
+layout_mode = 2
+
+[node name="Rina" parent="HUD/PartyWin/Rows" unique_id=1710148930 instance=ExtResource("10_w40i5")]
+layout_mode = 2
+
+[node name="Name" parent="HUD/PartyWin/Rows/Rina/NameBox" parent_id_path=PackedInt32Array(1710148930, 1109519973) index="0" unique_id=1923098456]
+text = "Rina"
+
+[node name="HP" parent="HUD/PartyWin/Rows/Rina/HPBox" parent_id_path=PackedInt32Array(1710148930, 1032140009) index="0" unique_id=10623239]
+text = "330 / 330"
+
+[node name="MP" parent="HUD/PartyWin/Rows/Rina" index="2" unique_id=1011089621]
+text = "20"
+
+[node name="Lyra" parent="HUD/PartyWin/Rows" unique_id=1492810399 instance=ExtResource("10_w40i5")]
+layout_mode = 2
+
+[node name="Name" parent="HUD/PartyWin/Rows/Lyra/NameBox" parent_id_path=PackedInt32Array(1492810399, 1109519973) index="0" unique_id=1923098456]
+text = "Lyra"
+
+[node name="HP" parent="HUD/PartyWin/Rows/Lyra/HPBox" parent_id_path=PackedInt32Array(1492810399, 1032140009) index="0" unique_id=10623239]
+text = "270 / 270"
+
+[node name="MP" parent="HUD/PartyWin/Rows/Lyra" index="2" unique_id=1011089621]
+text = "48"
+
+[node name="SubWin" type="PanelContainer" parent="HUD" unique_id=1597815603]
+visible = false
+custom_minimum_size = Vector2(424, 160)
+layout_mode = 0
+offset_left = 6.0
+offset_top = 374.0
+offset_right = 6.0
+offset_bottom = 374.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_n6gaa")
+script = ExtResource("9_mvulk")
+
+[node name="SubList" type="GridContainer" parent="HUD/SubWin" unique_id=1498554895]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+columns = 2
+script = ExtResource("11_icoan")
+preview = PackedStringArray("Pulih|5", "Kilat|5", "Bola Api|6", "Hujan Es|6")
+item_width = 186.0
+
+[node name="VictoryWin" type="PanelContainer" parent="HUD" unique_id=1524871871]
+visible = false
+custom_minimum_size = Vector2(460, 0)
+layout_mode = 0
+offset_left = 250.0
+offset_top = 60.0
+offset_right = 250.0
+offset_bottom = 60.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_6ofp8")
+script = ExtResource("9_mvulk")
+
+[node name="VBox" type="VBoxContainer" parent="HUD/VictoryWin" unique_id=1948226410]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="HUD/VictoryWin/VBox" unique_id=229485523]
+modulate = Color(1, 0.9137255, 0.5411765, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "KEMENANGAN!"
+horizontal_alignment = 1
+
+[node name="Rows" type="VBoxContainer" parent="HUD/VictoryWin/VBox" unique_id=264779511]
+layout_mode = 2
+
+[node name="Contoh" type="Label" parent="HUD/VictoryWin/VBox/Rows" unique_id=606018490]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "EXP didapat  33   •   Gold didapat  23"
+
+[node name="Hint" type="Label" parent="HUD/VictoryWin/VBox" unique_id=1843850875]
+modulate = Color(0.68235296, 0.7137255, 0.91764706, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "Tekan Enter ▶"
+horizontal_alignment = 2
+
+[editable path="HUD/PartyWin/Rows/Kael"]
+[editable path="HUD/PartyWin/Rows/Rina"]
+[editable path="HUD/PartyWin/Rows/Lyra"]

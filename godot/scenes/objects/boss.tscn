@@ -1,0 +1,57 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/entities/map_boss.gd" id="1_n6y7y"]
+[ext_resource type="Texture2D" path="res://assets/characters/wyrm.png" id="2_bwsnr"]
+
+[sub_resource type="Gradient" id="Gradient_14dge"]
+colors = PackedColorArray(0.67, 0.47, 0.9, 0.45, 0.67, 0.47, 0.9, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_4nwq5"]
+gradient = SubResource("Gradient_14dge")
+width = 160
+height = 160
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Animation" id="Animation_w5ldv"]
+length = 4.0
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2, 4),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": [Vector2(-8, -20), Vector2(-8, -24), Vector2(-8, -20)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_3pknu"]
+_data = {
+&"idle": SubResource("Animation_w5ldv")
+}
+
+[node name="WyrmKabut" type="Node2D" unique_id=645390706]
+script = ExtResource("1_n6y7y")
+
+[node name="Glow" type="Sprite2D" parent="." unique_id=898991021]
+position = Vector2(16, 10)
+texture = SubResource("GradientTexture2D_4nwq5")
+
+[node name="Shadow" type="Polygon2D" parent="." unique_id=1796614846]
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(36, 30, 35.02113, 31.236069, 32.18034, 32.351143, 27.755705, 33.23607, 22.18034, 33.804226, 16, 34, 9.81966, 33.804226, 4.244295, 33.23607, -0.18033981, 32.351143, -3.0211296, 31.236069, -4, 30, -3.0211296, 28.763931, -0.18033981, 27.648859, 4.244295, 26.763931, 9.81966, 26.195774, 16, 26, 22.18034, 26.195774, 27.755705, 26.763931, 32.18034, 27.648859, 35.02113, 28.763931)
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=540249567]
+position = Vector2(-8, -20)
+scale = Vector2(2, 2)
+texture = ExtResource("2_bwsnr")
+centered = false
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=671087655]
+libraries/ = SubResource("AnimationLibrary_3pknu")
+autoplay = &"idle"

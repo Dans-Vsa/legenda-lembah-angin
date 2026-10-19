@@ -1,5 +1,6 @@
 extends Node2D
-## Scene utama: hanya menyerahkan kendali ke autoload Game.
+## Scene utama: World, BattleLayer, HintLayer, UILayer, dan FadeLayer.
+## Kendali permainan diserahkan ke autoload Game.
 
 
 func _ready() -> void:

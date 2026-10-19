@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://ui/theme.tres" id="1_fe5gf"]
+[ext_resource type="Script" path="res://scripts/win.gd" id="2_t0ngr"]
+[ext_resource type="Script" path="res://scripts/list_menu.gd" id="3_2nmp3"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f61e7"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bb0x3"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="ChoiceBox" type="Control" unique_id=1161774219]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_fe5gf")
+
+[node name="Box" type="PanelContainer" parent="." unique_id=453473563]
+custom_minimum_size = Vector2(880, 140)
+layout_mode = 0
+offset_left = 40.0
+offset_top = 388.0
+offset_right = 40.0
+offset_bottom = 388.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_f61e7")
+script = ExtResource("2_t0ngr")
+
+[node name="Text" type="Label" parent="Box" unique_id=802055560]
+custom_minimum_size = Vector2(850, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Simpan permainan di sini?"
+autowrap_mode = 3
+
+[node name="ChoiceWin" type="PanelContainer" parent="." unique_id=1516396426]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 0
+offset_left = 700.0
+offset_top = 316.0
+offset_right = 700.0
+offset_bottom = 316.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_bb0x3")
+script = ExtResource("2_t0ngr")
+
+[node name="Choices" type="GridContainer" parent="ChoiceWin" unique_id=794260342]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+script = ExtResource("3_2nmp3")
+preview = PackedStringArray("Ya", "Tidak")

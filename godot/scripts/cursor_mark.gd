@@ -1,3 +1,4 @@
+@tool
 class_name CursorMark
 extends Control
 ## Panah kursor putih yang bergoyang pelan.

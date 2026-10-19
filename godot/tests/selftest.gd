@@ -41,7 +41,8 @@ func run() -> void:
 func _check_maps() -> void:
 	var starts := {"town": Vector2i(12, 10), "world": Vector2i(8, 18), "cave": Vector2i(15, 21)}
 	for id in starts:
-		var def: Dictionary = Game.world.maps[id]
+		var def := WorldMap.read_map(id)
+		def["node"].free()
 		var rows: Array = def["rows"]
 		var w: int = rows[0].length()
 		ok(rows.all(func(r): return r.length() == w), "%s: semua baris peta sama panjang" % id)

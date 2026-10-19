@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/entities/map_warp.gd" id="1_3q6ts"]
+
+[node name="Warp" type="Node2D" unique_id=746684020]
+script = ExtResource("1_3q6ts")

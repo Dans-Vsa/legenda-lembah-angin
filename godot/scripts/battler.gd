@@ -11,6 +11,8 @@ var oy := 0.0
 var alpha := 1.0
 var flash := 0.0
 var shake := 0.0
+# Node sprite di layar battle
+var node: BattlerNode
 
 
 func display_name() -> String:

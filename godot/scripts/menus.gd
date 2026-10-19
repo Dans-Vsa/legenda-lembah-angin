@@ -32,36 +32,9 @@ static func heading(parent: Node, text: String) -> void:
 
 
 static func card_node(m: Member) -> Control:
-	var c: Dictionary = Data.CHARS[m.id]
-	var hb := HBoxContainer.new()
-	hb.add_theme_constant_override("separation", 12)
-	if m.hp <= 0:
-		hb.modulate.a = 0.6
-	var tr := TextureRect.new()
-	tr.texture = Art.sprite(m.id)
-	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	tr.custom_minimum_size = Vector2(48, 54)
-	tr.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	hb.add_child(tr)
-	var vb := VBoxContainer.new()
-	vb.add_theme_constant_override("separation", 0)
-	vb.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	hb.add_child(vb)
-	var top := HBoxContainer.new()
-	vb.add_child(top)
-	top.add_child(label(c["name"], 17))
-	top.add_child(label("Lv %d" % m.lvl, 14, Color("ffe98a")))
-	vb.add_child(label(c["title"], 12, Color("c0c6f0")))
-	var need := Data.xp_next(m.lvl)
-	var maxed := m.lvl >= Data.MAX_LVL
-	for spec in [["HP", "%d / %d" % [m.hp, m.s["maxHp"]], "hp", float(m.hp) / m.s["maxHp"]],
-			["MP", "%d / %d" % [m.mp, m.s["maxMp"]], "mp", float(m.mp) / m.s["maxMp"]],
-			["EXP", "MAX" if maxed else "%d / %d" % [m.xp, need], "xp", 1.0 if maxed else float(m.xp) / need]]:
-		kv(vb, spec[0], spec[1], 13)
-		var b := Bar.make(vb, spec[2], 230, 6)
-		b.value = spec[3]
-	return hb
+	var card: PartyCard = load("res://scenes/ui/party_card.tscn").instantiate()
+	card.show_member(m)
+	return card
 
 
 static func status_into(parent: Node, m: Member) -> void:
@@ -95,21 +68,14 @@ static func fmt_time(sec: float) -> String:
 static func field_menu() -> void:
 	Game.world.busy = true
 	Snd.sfx("menu")
-	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var root: Control = load("res://scenes/ui/field_menu.tscn").instantiate()
 	Game.ui.add_child(root)
-	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0.04, 0.35)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_child(dim)
-	var cmd_w := Win.make(root, 16, 16, 190)
-	var info_w := Win.make(root, 16, 410, 190, 114)
-	var cards_w := Win.make(root, 216, 16, 370, 508)
-	var side_w := Win.make(root, 596, 16, 348, 508)
-	var info := VBoxContainer.new()
-	info_w.add_child(info)
-	var side := VBoxContainer.new()
-	side_w.add_child(side)
+	var info: VBoxContainer = root.get_node("InfoWin/Info")
+	var side: VBoxContainer = root.get_node("SideWin/Side")
+	for box in [info, side]:
+		for ch in box.get_children():
+			box.remove_child(ch)
+			ch.queue_free()
 	var st := {"closed": false}
 
 	var refresh_info := func() -> void:
@@ -124,7 +90,8 @@ static func field_menu() -> void:
 	timer.timeout.connect(refresh_info)
 	root.add_child(timer)
 
-	var cards := ListMenu.make(cards_w, [], {"inactive": true, "item_width": 330})
+	var cards: ListMenu = root.get_node("CardsWin/Cards")
+	cards.setup([], {"inactive": true, "item_width": 330})
 	var refresh_cards := func(filter: Callable) -> void:
 		var items := []
 		for m in Game.party:
@@ -278,7 +245,7 @@ static func field_menu() -> void:
 		if st["closed"]:
 			return
 		st["closed"] = true
-		cards.destroy()
+		cards.deactivate()
 		root.queue_free()
 		Game.world.busy = false
 		Game.world.bump_lock = true
@@ -291,16 +258,17 @@ static func field_menu() -> void:
 			return
 		side_default.call()
 
-	var main := ListMenu.make(cmd_w, [
+	var main: ListMenu = root.get_node("CmdWin/Cmd")
+	main.setup([
 		{"label": "Item", "value": "item"}, {"label": "Skill", "value": "skill"}, {"label": "Status", "value": "status"},
 		{"label": "Simpan", "value": "save"}, {"label": "Ke Judul", "value": "title"}, {"label": "Tutup", "value": "close"},
 	], {"inactive": true})
 	main.on_cancel = func():
-		main.destroy()
+		main.deactivate()
 		close.call()
 	main.on_select = func(it, _i):
 		if it["value"] == "close":
-			main.destroy()
+			main.deactivate()
 			close.call()
 			return
 		main.deactivate()
@@ -318,28 +286,14 @@ static func field_menu() -> void:
 # ---------- Toko ----------
 static func open_shop() -> void:
 	await Game.say([{"s": "Pak Darmo", "t": "Selamat datang di toko kami! Ramuan, senjata, pelindung... semua ada. Silakan lihat-lihat."}])
-	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var root: Control = load("res://scenes/ui/shop.tscn").instantiate()
 	Game.ui.add_child(root)
-	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0.04, 0.35)
-	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.add_child(dim)
-	var head_w := Win.make(root, 16, 16, 928, 50)
-	var head := HBoxContainer.new()
-	head_w.add_child(head)
-	var list_w := Win.make(root, 16, 76, 470, 448)
-	var info_w := Win.make(root, 496, 76, 448, 448)
-	var info := VBoxContainer.new()
-	info_w.add_child(info)
+	var gold_label: Label = root.get_node("HeadWin/Head/Gold")
+	var info: VBoxContainer = root.get_node("InfoWin/Info")
+	var owner_win: Control = root.get_node("OwnerWin")
 
 	var upd := func() -> void:
-		for ch in head.get_children():
-			ch.queue_free()
-		var a := label("Toko Pak Darmo", 18)
-		a.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		head.add_child(a)
-		head.add_child(label("Gold: %d" % Game.gold, 18, Color("ffe9a0")))
+		gold_label.text = "Gold: %d" % Game.gold
 	var mk := func() -> Array:
 		var out := []
 		for id in Data.SHOP:
@@ -379,7 +333,8 @@ static func open_shop() -> void:
 			info.add_child(label("Gold tidak cukup.", 15, Color("ff9090")))
 	upd.call()
 	var w := Waiter.new()
-	var lm := ListMenu.make(list_w, mk.call(), {"silent": true, "item_width": 440,
+	var lm: ListMenu = root.get_node("ListWin/List")
+	lm.setup(mk.call(), {"silent": true, "item_width": 440,
 		"on_move": func(it, _i): show_info.call(it["value"]),
 		"on_cancel": func(): w.done.emit(null)})
 	lm.on_select = func(it, _i):
@@ -392,18 +347,17 @@ static func open_shop() -> void:
 			Game.toast("%s memakai %s!" % [m.display_name(), item["name"]])
 		elif item["kind"] == "armor":
 			lm.deactivate()
-			var pw := Win.make(root, 496, 300, 448, 150)
-			var vb := VBoxContainer.new()
-			pw.add_child(vb)
-			vb.add_child(label("Pakaikan %s ke siapa?" % item["name"], 15, Color("ffe98a")))
+			owner_win.visible = true
+			owner_win.get_node("OwnerBox/Prompt").text = "Pakaikan %s ke siapa?" % item["name"]
 			var w2 := Waiter.new()
 			var opts := []
 			for p in Game.party:
 				opts.append({"label": p.display_name(), "right": Data.ITEMS[p.armor]["name"], "value": p, "disabled": p.armor == id})
-			var pm := ListMenu.make(vb, opts, {"item_width": 410, "on_select": func(x, _i): w2.done.emit(x["value"]), "on_cancel": func(): w2.done.emit(null)})
+			var pm: ListMenu = owner_win.get_node("OwnerBox/Owners")
+			pm.setup(opts, {"item_width": 410, "on_select": func(x, _i): w2.done.emit(x["value"]), "on_cancel": func(): w2.done.emit(null)})
 			var m2 = await w2.done
-			pm.destroy()
-			pw.queue_free()
+			pm.deactivate()
+			owner_win.visible = false
 			lm.activate()
 			if m2 == null:
 				return
@@ -418,7 +372,7 @@ static func open_shop() -> void:
 		lm.set_items(mk.call())
 		show_info.call(id)
 	await w.done
-	lm.destroy()
+	lm.deactivate()
 	root.queue_free()
 	await Game.say([{"s": "Pak Darmo", "t": "Terima kasih! Hati-hati di jalan, ya!"}])
 

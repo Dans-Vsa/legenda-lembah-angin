@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/battle/battler_node.gd" id="1_2fumv"]
+[ext_resource type="Texture2D" path="res://assets/characters/kael.png" id="2_cdyyg"]
+[ext_resource type="Shader" path="res://shaders/flash.gdshader" id="3_s7sbt"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2fumv"]
+resource_local_to_scene = true
+shader = ExtResource("3_s7sbt")
+shader_parameter/flash = null
+
+[node name="Battler" type="Node2D" unique_id=1812124859]
+script = ExtResource("1_2fumv")
+texture = ExtResource("2_cdyyg")
+
+[node name="Shadow" type="Polygon2D" parent="." unique_id=818480987]
+color = Color(0, 0, 0, 0.3)
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=471705644]
+material = SubResource("ShaderMaterial_2fumv")

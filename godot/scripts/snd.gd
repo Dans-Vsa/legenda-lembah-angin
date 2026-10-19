@@ -13,6 +13,8 @@ var _songs := {}
 var _sfx_cache := {}
 var _mutex := Mutex.new()
 var _noise := PackedFloat32Array()
+var _task := -1
+var _stopping := false
 
 
 func _ready() -> void:
@@ -29,11 +31,21 @@ func _ready() -> void:
 	_noise.resize(RATE)
 	for i in RATE:
 		_noise[i] = rng.randf_range(-1.0, 1.0)
-	WorkerThreadPool.add_task(_prebuild)
+	_task = WorkerThreadPool.add_task(_prebuild)
+
+
+func _exit_tree() -> void:
+	# Hentikan pembuatan lagu di latar sebelum node ini dihapus.
+	_stopping = true
+	if _task >= 0:
+		WorkerThreadPool.wait_for_task_completion(_task)
+		_task = -1
 
 
 func _prebuild() -> void:
 	for name in ["title", "town", "field", "battle", "cave", "victory", "boss", "gameover"]:
+		if _stopping:
+			return
 		_song(name)
 
 

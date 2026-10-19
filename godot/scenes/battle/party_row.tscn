@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/battle/party_row.gd" id="1_u83qx"]
+[ext_resource type="Script" path="res://scripts/bar.gd" id="2_046ev"]
+
+[node name="PartyRow" type="HBoxContainer" unique_id=64001112]
+custom_minimum_size = Vector2(0, 40)
+script = ExtResource("1_u83qx")
+
+[node name="NameBox" type="VBoxContainer" parent="." unique_id=1109519973]
+custom_minimum_size = Vector2(78, 0)
+layout_mode = 2
+alignment = 1
+
+[node name="Name" type="Label" parent="NameBox" unique_id=1923098456]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Kael"
+
+[node name="Status" type="Label" parent="NameBox" unique_id=820401838]
+modulate = Color(0.8784314, 0.627451, 1, 1)
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+
+[node name="HPBox" type="VBoxContainer" parent="." unique_id=1032140009]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_constants/separation = 1
+alignment = 1
+
+[node name="HP" type="Label" parent="HPBox" unique_id=10623239]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "380 / 380"
+
+[node name="HPBar" type="Control" parent="HPBox" unique_id=150444052]
+custom_minimum_size = Vector2(110, 4)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_046ev")
+
+[node name="MP" type="Label" parent="." unique_id=1011089621]
+custom_minimum_size = Vector2(44, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "24"
+
+[node name="Gauges" type="VBoxContainer" parent="." unique_id=1076369880]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="ATB" type="Control" parent="Gauges" unique_id=249861847]
+custom_minimum_size = Vector2(150, 7)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_046ev")
+kind = "atb"
+value = 0.6
+
+[node name="Burst" type="Control" parent="Gauges" unique_id=1002228705]
+custom_minimum_size = Vector2(150, 7)
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_046ev")
+kind = "burst"
+value = 0.15

@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://ui/theme.tres" id="1_x8fbh"]
+[ext_resource type="Script" path="res://scripts/ui/title_bg.gd" id="2_l8cu6"]
+
+[node name="StoryScreen" type="Control" unique_id=1515734918]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_x8fbh")
+
+[node name="Black" type="ColorRect" parent="." unique_id=1616435829]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 1)
+
+[node name="Background" type="Control" parent="." unique_id=468837658]
+visible = false
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2_l8cu6")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=1020126524]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.45)
+
+[node name="Lines" type="VBoxContainer" parent="." unique_id=1289084873]
+layout_mode = 0
+offset_left = 110.0
+offset_right = 850.0
+offset_bottom = 540.0
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Contoh1" type="Label" parent="Lines" unique_id=405347114]
+custom_minimum_size = Vector2(740, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Di kaki Pegunungan Biru, berdiri sebuah desa damai bernama Lembah Angin."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="Contoh2" type="Label" parent="Lines" unique_id=537555419]
+custom_minimum_size = Vector2(740, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 13
+text = "Tekan Enter untuk melanjutkan ▶"
+horizontal_alignment = 1
+autowrap_mode = 3

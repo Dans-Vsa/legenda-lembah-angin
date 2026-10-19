@@ -1,0 +1,119 @@
+[gd_scene format=3]
+
+[ext_resource type="Theme" path="res://ui/theme.tres" id="1_6ik4u"]
+[ext_resource type="Script" path="res://scripts/ui/title_bg.gd" id="2_aqu7r"]
+[ext_resource type="Texture2D" path="res://assets/characters/kael.png" id="3_jsbfx"]
+[ext_resource type="Texture2D" path="res://assets/characters/rina.png" id="4_7oraf"]
+[ext_resource type="Texture2D" path="res://assets/characters/lyra.png" id="5_lddph"]
+[ext_resource type="Script" path="res://scripts/win.gd" id="6_g5qcc"]
+[ext_resource type="Script" path="res://scripts/list_menu.gd" id="7_1oiph"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5p4sa"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+
+[node name="TitleScreen" type="Control" unique_id=276910848]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme = ExtResource("1_6ik4u")
+
+[node name="Background" type="Control" parent="." unique_id=1038932638]
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("2_aqu7r")
+
+[node name="Legenda" type="Label" parent="." unique_id=1862343334]
+modulate = Color(1, 0.9137255, 0.6901961, 1)
+layout_mode = 0
+offset_top = 92.0
+offset_right = 960.0
+offset_bottom = 128.0
+theme_override_font_sizes/font_size = 24
+text = "~ Legenda ~"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="." unique_id=112932713]
+layout_mode = 0
+offset_top = 128.0
+offset_right = 960.0
+offset_bottom = 218.0
+theme_override_colors/font_color = Color(1, 0.8156863, 0.3764706, 1)
+theme_override_colors/font_outline_color = Color(0.16470589, 0.078431375, 0.03137255, 1)
+theme_override_constants/outline_size = 12
+theme_override_font_sizes/font_size = 70
+text = "LEMBAH ANGIN"
+horizontal_alignment = 1
+
+[node name="Subtitle" type="Label" parent="." unique_id=650440178]
+modulate = Color(0.9411765, 0.8784314, 1, 1)
+layout_mode = 0
+offset_top = 212.0
+offset_right = 960.0
+offset_bottom = 238.0
+theme_override_font_sizes/font_size = 17
+text = "Sebuah Petualangan RPG Turn-Based"
+horizontal_alignment = 1
+
+[node name="Heroes" type="HBoxContainer" parent="." unique_id=845259708]
+layout_mode = 0
+offset_left = 370.0
+offset_top = 246.0
+offset_right = 370.0
+offset_bottom = 246.0
+theme_override_constants/separation = 28
+
+[node name="Kael" type="TextureRect" parent="Heroes" unique_id=2141297249]
+custom_minimum_size = Vector2(48, 54)
+layout_mode = 2
+texture = ExtResource("3_jsbfx")
+expand_mode = 1
+stretch_mode = 5
+flip_h = true
+
+[node name="Rina" type="TextureRect" parent="Heroes" unique_id=1855594631]
+custom_minimum_size = Vector2(48, 54)
+layout_mode = 2
+texture = ExtResource("4_7oraf")
+expand_mode = 1
+stretch_mode = 5
+flip_h = true
+
+[node name="Lyra" type="TextureRect" parent="Heroes" unique_id=1081704314]
+custom_minimum_size = Vector2(48, 54)
+layout_mode = 2
+texture = ExtResource("5_lddph")
+expand_mode = 1
+stretch_mode = 5
+flip_h = true
+
+[node name="MenuWin" type="PanelContainer" parent="." unique_id=1373629882]
+custom_minimum_size = Vector2(190, 0)
+layout_mode = 0
+offset_left = 385.0
+offset_top = 330.0
+offset_right = 385.0
+offset_bottom = 330.0
+theme_override_styles/panel = SubResource("StyleBoxEmpty_5p4sa")
+script = ExtResource("6_g5qcc")
+
+[node name="Menu" type="GridContainer" parent="MenuWin" unique_id=190122616]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 1
+script = ExtResource("7_1oiph")
+preview = PackedStringArray("Mulai Baru", "Lanjutkan")
+
+[node name="Help" type="Label" parent="." unique_id=447398425]
+layout_mode = 0
+offset_top = 508.0
+offset_right = 960.0
+offset_bottom = 531.0
+theme_override_font_sizes/font_size = 13
+text = "Panah / WASD: gerak   •   Enter / Z: pilih   •   Esc / X: batal & menu   •   M: suara"
+horizontal_alignment = 1

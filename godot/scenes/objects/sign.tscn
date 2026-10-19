@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/entities/map_sign.gd" id="1_24rhm"]
+[ext_resource type="Texture2D" path="res://assets/objects/sign.png" id="2_0wll6"]
+
+[node name="Papan" type="Node2D" unique_id=1548222421]
+script = ExtResource("1_24rhm")
+lines = PackedStringArray()
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1707469085]
+scale = Vector2(2, 2)
+texture = ExtResource("2_0wll6")
+centered = false

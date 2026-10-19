@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/actors/player.gd" id="1_ru62r"]
+[ext_resource type="Texture2D" path="res://assets/characters/kael.png" id="2_ktjr4"]
+
+[node name="Player" type="Node2D" unique_id=1379570748]
+script = ExtResource("1_ru62r")
+
+[node name="Shadow" type="Polygon2D" parent="." unique_id=1598096047]
+color = Color(0, 0, 0, 0.28)
+polygon = PackedVector2Array(27, 30, 26.46162, 31.236069, 24.899187, 32.351143, 22.465637, 33.23607, 19.399187, 33.804226, 16, 34, 12.600813, 33.804226, 9.534363, 33.23607, 7.100813, 32.351143, 5.5383787, 31.236069, 5, 30, 5.5383787, 28.763931, 7.100813, 27.648859, 9.534363, 26.763931, 12.600813, 26.195774, 16, 26, 19.399187, 26.195774, 22.465637, 26.763931, 24.899187, 27.648859, 26.46162, 28.763931)
+
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1936802459]
+scale = Vector2(2, 2)
+texture = ExtResource("2_ktjr4")
+centered = false
+offset = Vector2(0, -2)
