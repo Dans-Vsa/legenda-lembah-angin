@@ -284,10 +284,14 @@ const GameOver = {
 // Desktop: game memenuhi jendela. HP: game mengisi layar di dalam bodi konsol.
 function fit() {
   const g = $('game');
-  if (!Touch.active) { g.style.transform = `scale(${Math.min(innerWidth / VIEW_W, innerHeight / VIEW_H)})`; return; }
-  const r = $('screen').getBoundingClientRect();
+  const r = Touch.active ? $('screen').getBoundingClientRect() : { width: innerWidth, height: innerHeight };
   const s = Math.min(r.width / VIEW_W, r.height / VIEW_H);
   g.style.transform = `scale(${s})`;
+  // Pixel art tajam saat diperbesar; saat diperkecil (HP) pakai penghalusan
+  // agar garis tepi hitam teks tidak menumpuk jadi bercak.
+  const px = s * (window.devicePixelRatio || 1);
+  $('cv').style.imageRendering = !Touch.active || px >= 1.5 ? 'pixelated' : 'auto';
+  if (!Touch.active) return;
   g.style.left = Math.round((r.width - VIEW_W * s) / 2) + 'px';
   g.style.top = Math.round((r.height - VIEW_H * s) / 2) + 'px';
 }
